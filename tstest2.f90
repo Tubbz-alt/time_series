@@ -7,7 +7,7 @@
 ! ----------------------------------------------------------------
 ! ----------------------------------------------------------------
 ! Created October 24, 2002 by William A. Perkins
-! Last Change: Thu Oct 24 11:11:27 2002 by William A. Perkins <perk@leechong.pnl.gov>
+! Last Change: Thu Jan 23 12:56:35 2003 by William A. Perkins <perk@leechong.pnl.gov>
 ! ----------------------------------------------------------------
 
 PROGRAM tstest
@@ -22,8 +22,8 @@ PROGRAM tstest
   DOUBLE PRECISION :: t
   INTEGER :: i
 
-  CALL time_series_module_init(10, 10, &
-       &mode = TS_REAL_MODE, limit = TS_LIMIT_FLAT, debug = 15)
+  CALL time_series_module_init(mode = TS_REAL_MODE, &
+       &limit = TS_LIMIT_FLAT, debug = 15)
 
   ts => time_series_read('tstest2.dat', fields = 2)
 

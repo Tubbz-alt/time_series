@@ -7,7 +7,7 @@
 ! ----------------------------------------------------------------
 ! ----------------------------------------------------------------
 ! Created March 16, 2002 by William A. Perkins
-! Last Change: Thu Oct 24 12:06:20 2002 by William A. Perkins <perk@leechong.pnl.gov>
+! Last Change: Thu Jan 23 12:55:57 2003 by William A. Perkins <perk@leechong.pnl.gov>
 ! ----------------------------------------------------------------
 
 PROGRAM tstest
@@ -23,7 +23,8 @@ PROGRAM tstest
   DOUBLE PRECISION :: t
   INTEGER :: i
 
-  CALL time_series_module_init(10, 10, debug=10, limit = TS_LIMIT_NONE)
+  CALL date_time_init()
+  CALL time_series_module_init(debug=10, limit = TS_LIMIT_NONE)
 
   ts => time_series_read('tstest1.dat', fields = 2)
 
@@ -31,7 +32,7 @@ PROGRAM tstest
      CALL time_series_interp(ts, t)
      dstr = ''
      CALL date_format(t, dstr)
-     WRITE(*,*) TRIM(dstr), t, (ts%current(i), i = 1, ts%fields)
+     WRITE(*,'(A, 1X, 15F15.6)') TRIM(dstr), t, (ts%current(i), i = 1, ts%fields)
   END DO
   CALL time_series_module_done()
   

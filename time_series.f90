@@ -7,7 +7,7 @@
 ! ----------------------------------------------------------------
 ! ----------------------------------------------------------------
 ! Created January 21, 2002 by William A. Perkins
-! Last Change: Tue Nov  5 21:17:50 2002 by William A. Perkins <perk@leechong.pnl.gov>
+! Last Change: Thu Jan 23 13:02:07 2003 by William A. Perkins <perk@leechong.pnl.gov>
 ! ----------------------------------------------------------------
 
 ! ----------------------------------------------------------------
@@ -16,6 +16,7 @@
 MODULE time_series
 
   USE date_time
+  USE utility
 
   IMPLICIT NONE
 
@@ -74,7 +75,7 @@ MODULE time_series
                                 ! report error and status messages to
                                 ! an open file unit
 
-  INTEGER, PRIVATE :: logunit, errunit
+  ! INTEGER, PRIVATE :: logunit, errunit
 
   ! ----------------------------------------------------------------
 
@@ -116,12 +117,7 @@ CONTAINS
     END IF
     IF (myfatal) buf = 'FATAL ' // buf
 
-    WRITE (*,*) TRIM(buf)
-    IF (logunit .GT. 0)  WRITE (logunit,*) TRIM(buf)
-    IF (errunit .GT. 0)  WRITE (errunit,*) TRIM(buf)
-
-    IF (myfatal) CALL exit(10)
-
+    CALL error_message(msg, myfatal)
   END SUBROUTINE time_series_error
   
   ! ----------------------------------------------------------------
@@ -134,8 +130,6 @@ CONTAINS
     TYPE (time_series_rec), POINTER, OPTIONAL :: ts
     CHARACTER (LEN=*), INTENT(IN) :: msg
 
-    IF (logunit .LE. 0) RETURN
-
     IF (PRESENT(ts)) THEN
        WRITE (buf1, *) ts%id
        WRITE (buf, *) 'STATUS: time series ', TRIM(buf1), ': ', TRIM(ts%filename), &
@@ -144,28 +138,24 @@ CONTAINS
        WRITE (buf, *) 'STATUS: time series: ', TRIM(msg)
     END IF
 
-    WRITE (logunit,*) TRIM(buf)
+    CALL status_message(buf)
 
   END SUBROUTINE time_series_log
 
   ! ----------------------------------------------------------------
   ! SUBROUTINE time_series_module_init
   ! ----------------------------------------------------------------
-  SUBROUTINE time_series_module_init(log, err, debug, limit, mode)
+  SUBROUTINE time_series_module_init(debug, limit, mode)
 
     IMPLICIT NONE
 
-    INTEGER, OPTIONAL, INTENT(IN) :: log, err, limit, mode
+    INTEGER, OPTIONAL, INTENT(IN) :: limit, mode
     INTEGER, OPTIONAL, INTENT(IN) :: debug
 
-    logunit = -1
-    errunit = -1
     debug_level = 0
     limit_mode = TS_LIMIT_NONE
     time_series_mode = TS_DATE_MODE
 
-    IF (PRESENT(log)) logunit = log
-    IF (PRESENT(err)) errunit = err
     IF (PRESENT(debug))  debug_level = debug
 
     IF (debug_level .GT. 10) &
@@ -325,6 +315,8 @@ CONTAINS
 
        datetime =  date_to_decimal(sdate, stime)
 
+                                ! if date_to_decimal returns 0.0, the
+                                ! date string is wrong
        IF (datetime .EQ. 0.0) THEN
           nfld = -1 
           RETURN
@@ -373,7 +365,7 @@ CONTAINS
     INTEGER :: myfld, myid, length, istat, iounit, ierr, nfld, i
 
     IF (.NOT. PRESENT(fields)) THEN
-       myfld = 1
+       myfld = max_fields
     ELSE
        myfld = fields
     END IF
@@ -396,20 +388,8 @@ CONTAINS
     IF (debug_level .GT. 0) &
          &CALL time_series_log("Attempting to open " // TRIM(filename))
 
-    INQUIRE(FILE=filename, EXIST=exists)
-    IF (.NOT. exists) THEN 
-       WRITE (buf,*) TRIM(filename), ': file does not exist'
-       CALL time_series_error(buf, fatal = .TRUE.)
-    END IF
 
-                                ! open the file and see how many
-                                ! points are in it
-
-    OPEN(UNIT=iounit, FILE=filename, STATUS='old', IOSTAT=istat, FORM='formatted')
-    IF (istat .NE. 0) THEN
-       WRITE (buf,*) 'cannot open file ', TRIM(filename)
-       CALL time_series_error(buf, fatal = .TRUE.)
-    END IF
+    CALL open_existing(filename, iounit)
 
     IF (debug_level .GT. 0) &
          &CALL time_series_log(TRIM(filename) // " successfully opened")
@@ -500,8 +480,10 @@ CONTAINS
     INTEGER :: i
     DOUBLE PRECISION :: factor
 
-    IF (debug_level .GT. 10) &
-         &CALL time_series_log('Entering time_series_interp ...')
+    IF (debug_level .GT. 10) THEN
+       WRITE(buf,*) 'Entering time_series_interp with time = ', datetime
+       CALL time_series_log(buf)
+    END IF
 
     IF (datetime .LT. ts%series(1)%time) THEN
        SELECT CASE (limit_mode)
@@ -538,8 +520,18 @@ CONTAINS
 
     factor = (datetime - ts%series(i)%time)/&
          &(ts%series(i + 1)%time - ts%series(i)%time)
+
+    IF (debug_level .GT. 10) THEN
+       WRITE(buf,*) 'interpolating between ', &
+            &ts%series(i + 1)%time, ' and ', ts%series(i)%time
+       CALL time_series_log(buf)
+    END IF
+
     ts%current = factor*(ts%series(i+1)%field - ts%series(i)%field) +&
          &ts%series(i)%field
+
+    IF (debug_level .GT. 10) &
+         &CALL time_series_log('Leaving time_series_interp')
 
   END SUBROUTINE time_series_interp
 
