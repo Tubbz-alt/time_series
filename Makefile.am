@@ -11,13 +11,16 @@ libts_a_SOURCES = \
 	date_time_module.f90 \
 	utility.f90
 
-bin_PROGRAMS = \
+check_PROGRAMS = \
 	datetest1 \
+	datetest2 \
 	tstest1 \
 	tstest2 
 
 datetest1_SOURCES = datetest1.f90
 datetest1_LDADD = libts.a 
+datetest2_SOURCES = datetest2.f90
+datetest2_LDADD = libts.a 
 tstest1_SOURCES = tstest1.f90
 tstest1_LDADD = libts.a
 tstest2_SOURCES = tstest2.f90

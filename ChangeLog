@@ -1,3 +1,18 @@
+2003-04-02  William A. Perkins  <william.perkins@pnl.gov>
+
+	* Makefile.am (check_PROGRAMS): test programs are check_PROGRAMS
+	instead of bin_PROGRAMS 
+
+2003-03-31  William A. Perkins  <william.perkins@pnl.gov>
+
+	* utility.f90: added open_new routine
+
+	* Makefile.am: added datetest2 program
+
+	* utility.f90: needed to rename the error and status I/O units. 
+
+	* acinclude.m4: some macros to find a Fortran 90 compiler
+
 2003-03-26  William A. Perkins  <william.perkins@pnl.gov>
 
 

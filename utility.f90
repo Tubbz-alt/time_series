@@ -7,7 +7,7 @@
 ! ----------------------------------------------------------------
 ! ----------------------------------------------------------------
 ! Created October 21, 2002 by William A. Perkins
-! Last Change: Tue Mar 25 15:22:25 2003 by William A. Perkins <perk@leechong.pnl.gov>
+! Last Change: Mon Mar 31 15:27:10 2003 by William A. Perkins <perk@leechong.pnl.gov>
 ! ----------------------------------------------------------------
 
 ! ----------------------------------------------------------------
@@ -19,7 +19,7 @@ MODULE utility
 
   CHARACTER (LEN=80), PRIVATE, SAVE :: rcsid = "$Id$"
 
-  INTEGER, PARAMETER, PUBLIC :: error_iounit=13, status_iounit=14
+  INTEGER, PARAMETER, PUBLIC :: utility_error_iounit=13, utility_status_iounit=14
 
 CONTAINS 
 
@@ -37,11 +37,12 @@ CONTAINS
 
     IF (PRESENT(fatal)) die = fatal
 
-    WRITE(*,*) TRIM(msg)
-    WRITE(error_iounit, *) TRIM(msg)
+    WRITE(utility_error_iounit, *) TRIM(msg)
 
-    IF (die) CALL EXIT(1)
-
+    IF (die) THEN
+       WRITE(*,*) TRIM(msg)
+       CALL EXIT(1)
+    END IF
   END SUBROUTINE error_message
 
   ! ----------------------------------------------------------------
@@ -53,7 +54,7 @@ CONTAINS
 
     CHARACTER (LEN=*), INTENT(IN) :: msg
 
-    WRITE(status_iounit, *) TRIM(msg)
+    WRITE(utility_status_iounit, *) TRIM(msg)
 
   END SUBROUTINE status_message
 
@@ -70,16 +71,41 @@ CONTAINS
     INTEGER, INTENT(IN) :: iunit
 
     LOGICAL :: file_exist
+    INTEGER :: status
 
     INQUIRE(FILE=fname, EXIST=file_exist)
 
     IF(file_exist)THEN
-       OPEN(iunit,file=fname)
-       CALL status_message('Opened ' // TRIM(fname) // ' for reading')
-    ELSE
-       CALL error_message(TRIM(fname) // ': cannot open for reading', fatal=.TRUE.)
+       OPEN(iunit, file=fname, action='READ', iostat=status)
+       IF (status .EQ. 0) THEN
+          CALL status_message('Opened ' // TRIM(fname) // ' for reading')
+          RETURN
+       END IF
     ENDIF
+    CALL error_message(TRIM(fname) // ': cannot open for reading', fatal=.TRUE.)
   END SUBROUTINE open_existing
+
+  ! ----------------------------------------------------------------
+  ! SUBROUTINE open_new
+  ! ----------------------------------------------------------------
+  SUBROUTINE open_new(fname, iunit)
+
+    IMPLICIT NONE
+
+    CHARACTER (LEN=*), INTENT(IN) :: fname
+    INTEGER, INTENT(IN) :: iunit
+
+    INTEGER :: status
+
+    OPEN(unit=iunit, file=fname, action='WRITE', iostat=status)
+    IF (status .EQ. 0) THEN
+       CALL status_message('Opened ' // TRIM(fname) // ' for writing')
+       RETURN
+    END IF
+    CALL error_message(TRIM(fname) // ': cannot open for writing', fatal=.TRUE.)
+
+  END SUBROUTINE open_new
+
 
 
 END MODULE utility
