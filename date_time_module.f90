@@ -72,7 +72,7 @@ CONTAINS
     END IF
 
     IF (PRESENT(sdigits)) THEN
-       WRITE (tfmt, '(1HF, I1.1, 1H., I1.1,)') sdigits+3, sdigits
+       WRITE (tfmt, '(1HF, I1.1, 1H., I1.1)') sdigits+3, sdigits
        tfmt = '(I2.2,1H' //tsep // ',I2.2,1H' // tsep // "," // TRIM(tfmt) // ')'
        realsec = .TRUE.
     ELSE IF (LEN_TRIM(tfmt) .EQ. 0) THEN

@@ -77,7 +77,7 @@ case $host in
                 F90LIBS="-lPEPCF90"
                 F90MODULEEXT=d
                 F90OPTIMIZE="-tpp7 -O3 -axW -xW"
-                F90PROFILE="-prof_gen"
+                F90PROFILE="-p"
                 ;;
                                 # The Lahey compiler
             lf95)
