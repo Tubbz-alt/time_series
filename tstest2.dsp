@@ -91,7 +91,7 @@ DEP_F90_TSTES=\
 
 !ELSEIF  "$(CFG)" == "tstest2 - Win32 Debug"
 
-DEP_F90_TSTES=\
+NODEP_F90_TSTES=\
 	".\Debug\time_series.mod"\
 	
 
