@@ -1,3 +1,8 @@
+2003-04-08  William A. Perkins  <william.perkins@pnl.gov>
+
+	* time_series.f90: when the number of fields is specified, that is
+	a maximum, NOT a minimum
+
 2003-04-04  William A. Perkins  <william.perkins@pnl.gov>
 
 	* bootstrap.sh: bootstrap time_series too

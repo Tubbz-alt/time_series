@@ -7,7 +7,7 @@
 ! ----------------------------------------------------------------
 ! ----------------------------------------------------------------
 ! Created March 16, 2002 by William A. Perkins
-! Last Change: Mon Feb 10 09:05:21 2003 by William A. Perkins <perk@leechong.pnl.gov>
+! Last Change: Tue Apr  8 14:05:57 2003 by William A. Perkins <perk@leechong.pnl.gov>
 ! ----------------------------------------------------------------
 
 PROGRAM tstest
@@ -26,7 +26,7 @@ PROGRAM tstest
   CALL date_time_flags(sdigits=3)
   CALL time_series_module_init(debug=10, limit = TS_LIMIT_NONE)
 
-  ts => time_series_read('tstest1.dat', fields = 2)
+  ts => time_series_read('tstest1.dat', fields = 10)
 
   t = ts%series(ts%length)%time - ts%series(1)%time
   steps = INT(t/deltat + 0.5)

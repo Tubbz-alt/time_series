@@ -7,7 +7,7 @@
 ! ----------------------------------------------------------------
 ! ----------------------------------------------------------------
 ! Created January 21, 2002 by William A. Perkins
-! Last Change: Thu Jan 23 13:02:07 2003 by William A. Perkins <perk@leechong.pnl.gov>
+! Last Change: Tue Apr  8 14:17:17 2003 by William A. Perkins <perk@leechong.pnl.gov>
 ! ----------------------------------------------------------------
 
 ! ----------------------------------------------------------------
@@ -402,13 +402,13 @@ CONTAINS
     DO WHILE (.TRUE.)
        nfld = time_series_point_read(iounit)
        i = i + 1
-       IF (nfld .GE. fields) THEN
+       IF (nfld .LE. myfld .AND. nfld .GT. 0) THEN
           length = length + 1
        ELSE IF (nfld .EQ. 0) THEN
           EXIT
        ELSE
           WRITE (buf, *) TRIM(filename), ': line ', i, &
-               &': fields read = ', nfld, ' (expected ', fields, ')'
+               &': fields read = ', nfld, ' (expected ', myfld, ')'
           CALL time_series_error(buf)
           ierr = ierr + 1
        END IF
@@ -433,10 +433,10 @@ CONTAINS
     ierr = 0
     DO i = 1, time_series_read%length
        nfld = time_series_point_read(iounit, time_series_read%series(i))
-       IF (nfld .LT. time_series_read%fields) THEN
-          WRITE (buf, *) 'unexpected error, line ', i, '(', nfld, ')'
-          CALL time_series_error(buf, ts = time_series_read, fatal = .TRUE.)
-       END IF
+       ! IF (nfld .LT. time_series_read%fields) THEN
+       !    WRITE (buf, *) 'unexpected error, line ', i, '(', nfld, ')'
+       !    CALL time_series_error(buf, ts = time_series_read, fatal = .TRUE.)
+       ! END IF
     END DO
 
     CLOSE (iounit)
