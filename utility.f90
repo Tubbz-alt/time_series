@@ -7,7 +7,7 @@
 ! ----------------------------------------------------------------
 ! ----------------------------------------------------------------
 ! Created October 21, 2002 by William A. Perkins
-! Last Change: Mon Mar 31 15:27:10 2003 by William A. Perkins <perk@leechong.pnl.gov>
+! Last Change: Tue Apr 15 09:58:38 2003 by William A. Perkins <perk@leechong.pnl.gov>
 ! ----------------------------------------------------------------
 
 ! ----------------------------------------------------------------
@@ -32,17 +32,22 @@ CONTAINS
 
     CHARACTER (LEN=*), INTENT(IN) :: msg
     LOGICAL, INTENT(IN), OPTIONAL :: fatal
+    CHARACTER (LEN=1024) :: buffer
 
     LOGICAL :: die = .FALSE.
 
     IF (PRESENT(fatal)) die = fatal
 
-    WRITE(utility_error_iounit, *) TRIM(msg)
-
     IF (die) THEN
-       WRITE(*,*) TRIM(msg)
-       CALL EXIT(1)
+       buffer = "FATAL ERROR: " // msg
+    ELSE 
+       buffer = "ERROR: " // msg
     END IF
+
+    WRITE(utility_error_iounit, *) TRIM(buffer)
+    WRITE(*,*) TRIM(buffer)
+
+    IF (die) CALL EXIT(1)
   END SUBROUTINE error_message
 
   ! ----------------------------------------------------------------
