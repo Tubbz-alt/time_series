@@ -3,6 +3,7 @@ dnl AC_PROG_F90
 dnl -------------------------------------------------------------
 AC_DEFUN(AC_PROG_F90,
 [AC_REQUIRE([AC_CANONICAL_HOST])
+
 if test -n "$F90"; then
     F77="$F90"
 fi
@@ -22,14 +23,15 @@ if test -z "$F77"; then
             AC_MSG_ERROR(Cannot compile for unknown system $host)
     esac
     AC_MSG_RESULT($ac_f90_compilers)
-    # AC_PROG_F77
     AC_CHECK_PROGS(F77, $ac_f90_compilers)
     test -z "$F77" && AC_MSG_ERROR([no acceptable Fortran 90 compiler found in \$PATH])
 fi
 
+AC_PROG_F77($F77)
+
 AC_PROG_F90_FLAGS
 
-AC_PROG_F77_WORKS
+dnl AC_PROG_F77_WORKS
 
 ])
 
@@ -40,7 +42,7 @@ dnl     F90FLAGS, F90OPTIMIZE, F90DEBUG, F90MODEXT, F90MODPATH, F90PROFILE
 dnl     F90LDFLAGS, F90LIBS
 dnl -------------------------------------------------------------
 AC_DEFUN(AC_PROG_F90_FLAGS,
-[AC_REQUIRE([AC_PROG_F90])
+[ dnl AC_REQUIRE([AC_PROG_F90])
 AC_SUBST(F90FLAGS)
 AC_SUBST(F90LDFLAGS)
 AC_SUBST(F90LIBS)

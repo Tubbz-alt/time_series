@@ -8,7 +8,7 @@
 # -------------------------------------------------------------
 # -------------------------------------------------------------
 # Created March 25, 2003 by William A. Perkins
-# Last Change: Fri Mar 28 13:12:42 2003 by William A. Perkins <perk@leechong.pnl.gov>
+# Last Change: Fri Feb  6 09:30:34 2004 by William A. Perkins <perk@leechong.pnl.gov>
 # -------------------------------------------------------------
 
 # -------------------------------------------------------------
@@ -72,7 +72,7 @@ fi
 LDFLAGS="$LDFLAGS $F90LDFLAGS"
 LIBS="$LIBS $F90LIBS"
 
-AC_PROG_F77_WORKS
+dnl AC_PROG_F77_WORKS
 
 
 AC_OUTPUT(Makefile)
