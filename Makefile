@@ -7,7 +7,7 @@
 # -------------------------------------------------------------
 # -------------------------------------------------------------
 # Created February  3, 2002 by William A. Perkins
-# Last Change: Sun Mar 24 08:39:33 2002 by William A. Perkins <perk@localhost>
+# Last Change: Thu Oct 24 11:24:22 2002 by William A. Perkins <perk@leechong.pnl.gov>
 # -------------------------------------------------------------
 
 
@@ -42,10 +42,13 @@ clean::
 	rm -f ${LIB}
 	rm -f *.mod
 
-test: tstest1
+test: tstest1 tstest2
 
 tstest1: tstest1.o ${LIB}
 	${LINK.f90} -o $@ tstest1.o ${LIB} ${LDLIBS}
+
+tstest2: tstest2.o ${LIB}
+	${LINK.f90} -o $@ tstest2.o ${LIB} ${LDLIBS}
 
 clean::
 	rm -f tstest1.o
@@ -53,6 +56,8 @@ clean::
 
 # dependancies for individual object files
 
+tstest1.o: tstest1.f90 time_series.o
+tstest2.o: tstest2.f90 time_series.o
 time_series.o: time_series.f90 date_time_module.o
 date_time_module.o: date_time_module.f90 julian.o
 julian.o: julian.f90

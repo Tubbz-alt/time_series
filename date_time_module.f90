@@ -33,7 +33,11 @@ TYPE datetime_struct
 
 END TYPE datetime_struct
 
-
+DOUBLE PRECISION, PARAMETER, PUBLIC :: &
+     &SECONDS = 1.0/86400.0, &
+     &MINUTES = 1.0/1440.0, &
+     &HOURS = 1.0/24.0, &
+     &DAYS = 1.0
 
 !#########################################################################
 CONTAINS

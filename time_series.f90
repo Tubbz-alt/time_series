@@ -7,7 +7,7 @@
 ! ----------------------------------------------------------------
 ! ----------------------------------------------------------------
 ! Created January 21, 2002 by William A. Perkins
-! Last Change: Sun Mar 24 08:29:06 2002 by William A. Perkins <perk@localhost>
+! Last Change: Tue Nov  5 21:17:50 2002 by William A. Perkins <perk@leechong.pnl.gov>
 ! ----------------------------------------------------------------
 
 ! ----------------------------------------------------------------
@@ -74,8 +74,20 @@ MODULE time_series
                                 ! report error and status messages to
                                 ! an open file unit
 
-  LOGICAL, PRIVATE :: verbose
   INTEGER, PRIVATE :: logunit, errunit
+
+  ! ----------------------------------------------------------------
+
+  ! The debug_level is used to get various messages in the log file
+  ! about the goings on within the module.  Current values are as follows: 
+
+  !     debug_level .LE. 0: (the default) only errors reported
+  !     0 .LT. debug_level .LE. 5: in addition, file operations are reported and summarized
+  !     5 .LT. debug_level .LE. 10: in addition, interpolation is reported
+  !     10 .LT. debug_level: in addition, all module calls and some other stuff are reported 
+  ! ----------------------------------------------------------------
+
+  INTEGER, PRIVATE :: debug_level
 
 CONTAINS
 
@@ -139,22 +151,25 @@ CONTAINS
   ! ----------------------------------------------------------------
   ! SUBROUTINE time_series_module_init
   ! ----------------------------------------------------------------
-  SUBROUTINE time_series_module_init(log, err, verb, limit, mode)
+  SUBROUTINE time_series_module_init(log, err, debug, limit, mode)
 
     IMPLICIT NONE
 
     INTEGER, OPTIONAL, INTENT(IN) :: log, err, limit, mode
-    LOGICAL, OPTIONAL, INTENT(IN) :: verb
+    INTEGER, OPTIONAL, INTENT(IN) :: debug
 
     logunit = -1
     errunit = -1
-    verbose = .FALSE.
+    debug_level = 0
     limit_mode = TS_LIMIT_NONE
     time_series_mode = TS_DATE_MODE
 
     IF (PRESENT(log)) logunit = log
     IF (PRESENT(err)) errunit = err
-    IF (PRESENT(verb))  verbose = verb
+    IF (PRESENT(debug))  debug_level = debug
+
+    IF (debug_level .GT. 10) &
+         &CALL time_series_log('Entering time_series_module_init ...')
 
     IF (PRESENT(limit)) THEN
        SELECT CASE (limit)
@@ -178,8 +193,8 @@ CONTAINS
 
     nextid = 1
 
-    CALL time_series_log("module initialized")
-    IF (verbose) THEN
+    IF (debug_level .GT. 5) THEN
+       CALL time_series_log("module initialized")
        buf = 'limit mode: '
        SELECT CASE (limit_mode)
        CASE (TS_LIMIT_NONE)
@@ -202,7 +217,11 @@ CONTAINS
        CASE DEFAULT
           WRITE (buf, *) 'date/time format mode not understood ', time_series_mode
        END SELECT
+       CALL time_series_log(buf)
     END IF
+
+    IF (debug_level .GT. 10) &
+         &CALL time_series_log("Leaving time_series_module_init ...")
 
   END SUBROUTINE time_series_module_init
 
@@ -214,7 +233,7 @@ CONTAINS
 
     IMPLICIT NONE
 
-    CALL time_series_log("module finished")
+    IF (debug_level .GT. 5) CALL time_series_log("module finished")
 
   END SUBROUTINE time_series_module_done
 
@@ -230,12 +249,18 @@ CONTAINS
 
     INTEGER :: nfld
 
+    IF (debug_level .GT. 10) &
+         &CALL time_series_log("Entering time_series_point_init ...")
+
     nfld = 1
     IF (PRESENT(fields)) nfld = fields
 
     pt%time = 0.0
     ALLOCATE(pt%field(fields))
     pt%field = bogus
+
+    IF (debug_level .GT. 10) &
+         &CALL time_series_log("Leaving time_series_point_init ...")
 
   END SUBROUTINE time_series_point_init
 
@@ -251,7 +276,7 @@ CONTAINS
     INTEGER :: i
 
     ALLOCATE(ts)
-    ts%filename = ''
+    ts%filename = '(none)'
     ts%length = length
     ts%fields = fields
     ts%start = 1
@@ -264,8 +289,9 @@ CONTAINS
        CALL time_series_point_init(ts%series(i), fields)
     END DO
        
-    IF (verbose) THEN
+    IF (debug_level .GT. 0) THEN
        WRITE(buf, *) 'created with ', fields, ' fields and ', length, ' times'
+       CALL time_series_log(buf, ts)
     END IF
     
   END FUNCTION time_series_alloc
@@ -283,24 +309,32 @@ CONTAINS
     INTEGER, INTENT(IN) :: iounit
     TYPE (time_series_point), INTENT(INOUT), OPTIONAL :: pt
 
-    CHARACTER (LEN=10) :: sdate
-    CHARACTER (LEN=8) :: stime
+    CHARACTER (LEN=20) :: sdate
+    CHARACTER (LEN=20) :: stime
     DOUBLE PRECISION :: x(max_fields), datetime
 
     nfld = 0
     x = bogus
-    READ(iounit, *, END=100, ERR=200) sdate, stime, x
+
+    SELECT CASE (time_series_mode)
+    CASE (TS_DATE_MODE)
+       READ(iounit, *, END=100, ERR=200) sdate, stime, x
 
                                 ! convert date/time to number
                                 ! check to make sure it's valid
 
-    datetime =  date_to_decimal(sdate, stime)
+       datetime =  date_to_decimal(sdate, stime)
 
-    IF (datetime .EQ. 0.0) THEN
-       nfld = -1 
-       RETURN
-    END IF
-    
+       IF (datetime .EQ. 0.0) THEN
+          nfld = -1 
+          RETURN
+       END IF
+    CASE (TS_REAL_MODE)
+       READ(iounit, *, END=100, ERR=200) datetime, x
+    CASE DEFAULT
+       CALL time_series_error('Module error: unknown time mode')
+    END SELECT
+
                                 ! count the number of fields read, and
                                 ! make sure it is correct
 
@@ -324,7 +358,7 @@ CONTAINS
   ! ----------------------------------------------------------------
   ! TYPE (time_series_rec) FUNCTION read_time_series
   ! ----------------------------------------------------------------
-  TYPE (time_series_rec)  FUNCTION time_series_read(filename, fields, id)
+  TYPE (time_series_rec)  FUNCTION time_series_read(filename, fields, id, unit)
 
     IMPLICIT NONE
 
@@ -333,6 +367,7 @@ CONTAINS
     CHARACTER (LEN=*) :: filename
     INTEGER, INTENT(IN), OPTIONAL :: fields
     INTEGER, INTENT(IN), OPTIONAL :: id
+    INTEGER, INTENT(IN), OPTIONAL :: unit
 
     LOGICAL :: exists
     INTEGER :: myfld, myid, length, istat, iounit, ierr, nfld, i
@@ -348,6 +383,18 @@ CONTAINS
     ELSE 
        myid = id
     END IF
+    IF (.NOT. PRESENT(unit)) THEN
+       iounit = 1
+    ELSE
+       iounit = unit
+    END IF
+    
+
+    IF (debug_level .GT. 10) &
+         &CALL time_series_log("Entering time_series_read ...")
+
+    IF (debug_level .GT. 0) &
+         &CALL time_series_log("Attempting to open " // TRIM(filename))
 
     INQUIRE(FILE=filename, EXIST=exists)
     IF (.NOT. exists) THEN 
@@ -363,6 +410,9 @@ CONTAINS
        WRITE (buf,*) 'cannot open file ', TRIM(filename)
        CALL time_series_error(buf, fatal = .TRUE.)
     END IF
+
+    IF (debug_level .GT. 0) &
+         &CALL time_series_log(TRIM(filename) // " successfully opened")
 
     READ (iounit, *) buf       ! throw away first line in file
 
@@ -410,17 +460,30 @@ CONTAINS
     END DO
 
     CLOSE (iounit)
-    WRITE (buf, *) 'successfully read ', time_series_read%length , ' points'
-    CALL time_series_log(buf, ts = time_series_read)
 
-    IF (verbose) THEN
-       CALL date_format(time_series_read%series(1)%time, buf)
-       WRITE(buf, *) 'start = ', TRIM(buf)
+    IF (debug_level .GT. 0) THEN 
+       WRITE (buf, *) 'successfully read ', time_series_read%length , ' points'
        CALL time_series_log(buf, ts = time_series_read)
-       CALL date_format(time_series_read%series(time_series_read%length )%time, buf)
-       WRITE(buf, *) 'end = ', TRIM(buf)
-       CALL time_series_log(buf, ts = time_series_read)
+
+       SELECT CASE (time_series_mode)
+       CASE (TS_DATE_MODE) 
+          CALL date_format(time_series_read%series(1)%time, buf)
+          WRITE(buf, *) 'start = ', TRIM(buf)
+          CALL time_series_log(buf, ts = time_series_read)
+          CALL date_format(time_series_read%series(time_series_read%length )%time, buf)
+          WRITE(buf, *) 'end = ', TRIM(buf)
+          CALL time_series_log(buf, ts = time_series_read)
+       CASE (TS_REAL_MODE)
+          WRITE(buf, *) 'start = ', time_series_read%series(1)%time
+          CALL time_series_log(buf, ts = time_series_read)
+          WRITE(buf, *) 'end = ', time_series_read%series(time_series_read%length)%time
+          CALL time_series_log(buf, ts = time_series_read)
+       END SELECT
     END IF
+
+    IF (debug_level .GT. 10) &
+         &CALL time_series_log("Leaving time_series_read ...")
+
   END FUNCTION time_series_read
 
   ! ----------------------------------------------------------------
@@ -436,6 +499,9 @@ CONTAINS
     CHARACTER (LEN=1024) :: dstr
     INTEGER :: i
     DOUBLE PRECISION :: factor
+
+    IF (debug_level .GT. 10) &
+         &CALL time_series_log('Entering time_series_interp ...')
 
     IF (datetime .LT. ts%series(1)%time) THEN
        SELECT CASE (limit_mode)
