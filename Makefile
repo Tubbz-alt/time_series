@@ -7,7 +7,7 @@
 # -------------------------------------------------------------
 # -------------------------------------------------------------
 # Created February  3, 2002 by William A. Perkins
-# Last Change: Thu Jan 23 10:49:56 2003 by William A. Perkins <perk@leechong.pnl.gov>
+# Last Change: Tue Mar 25 14:09:50 2003 by William A. Perkins <perk@leechong.pnl.gov>
 # -------------------------------------------------------------
 
 
@@ -15,18 +15,18 @@ DEBUG = -g
 FLAGS = $(DEBUG)
 
 F90 = f95
-F90FLAGS = $(FLAGS) -trap=INVALID,DIVBYZERO,OVERFLOW  -B108 -YEXT_NAMES=LCS -YCFRL=1
+F90FLAGS = $(FLAGS) -trap=INVALID,DIVBYZERO,OVERFLOW  -YEXT_SFX=_ -YEXT_NAMES=LCS -YCFRL=1
 LDLIBS = -lU77
 MOD=mod
 
 # F90 = ifc
-# F90FLAGS = $(FLAGS) 
+# F90FLAGS = $(FLAGS) -static -Vaxlib
 # LDLIBS = -lPEPCF90
 # MOD=d
 
 
 COMPILE.f90 = $(F90) $(F90FLAGS) -c $(DEBUG)
-LINK.f90 = $(F90) $(LDFLAGS)
+LINK.f90 = $(F90) $(F90FLAGS) $(LDFLAGS)
 RANLIB = ranlib
 
 INCLOC = 
@@ -49,7 +49,7 @@ ${LIB}: ${LIBOBJS}
 
 clean::
 	rm -f ${LIB}
-	rm -f *.mod
+	rm -f *.$(MOD)
 
 test: tstest1 tstest2 datetest1
 

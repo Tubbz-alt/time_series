@@ -7,7 +7,7 @@
 ! ----------------------------------------------------------------
 ! ----------------------------------------------------------------
 ! Created June  3, 1998 by William A. Perkins
-! Last Change: Wed Jan 16 06:53:04 2002 by William A. Perkins <perk@leechong.pnl.gov>
+! Last Change: Mon Feb 10 08:41:14 2003 by William A. Perkins <perk@leechong.pnl.gov>
 ! ----------------------------------------------------------------
 ! RCS ID: $Id$ Battelle PNL
 
@@ -60,14 +60,14 @@ DOUBLE PRECISION FUNCTION JULDAYS(month, day, year, hour, minute, second)
   ya = y - (100 * c)
   j = (146097 * c) / 4 + (1461 * ya) / 4 + (153 * m + 2) / 5 + d + 1721119;
   
-  IF (s .LT. 12.0*3600.0) THEN
+  IF (s .LT. 12.0*3600.0d0) THEN
      j = j - 1
-     s = s + 12.0 * 3600.0
+     s = s + 12.0 * 3600.0d0
   ELSE
-     s = s - 12.0 * 3600.0
+     s = s - 12.0 * 3600.0d0
   ENDIF
 
-  JULDAYS = (DBLE(j) + (s / 3600.0)/24.0)
+  JULDAYS = (DBLE(j) + (s / 3600.0d0)/24.0d0)
 
 END FUNCTION JULDAYS
 
@@ -106,13 +106,13 @@ SUBROUTINE CALCDATE(jd, m, d, y, h, mi, sec)
   DOUBLE PRECISION :: tmp, frac
 
   j = jd
-  frac = jd - REAL(j) + 1/(2.0*86400) ! add half of one second for rounding
-  IF (frac .GE. 0.5) THEN
-     frac = frac - 0.5
-     j = j + 1
-  ELSE
-     frac = frac + 0.5
-  ENDIF
+frac = jd - DBLE(j)!  + 1/(2.0*86400) ! add half of one second for rounding
+!!$  IF (frac .GE. 0.5) THEN
+!!$     frac = frac - 0.5
+!!$     j = j + 1
+!!$  ELSE
+!!$     frac = frac + 0.5
+!!$  ENDIF
 
   j = j - 1721119
   y = (4 * j - 1) / 146097

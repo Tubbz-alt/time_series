@@ -1,0 +1,7 @@
+2003-01-23  William A. Perkins  <william.perkins@pnl.gov>
+
+	* date_time_module.f90 (date_time_init): ignore the sdigits option
+	until I figure out how to do it consistently
+
+	* datetest1.f90: format error A field not long enough
+

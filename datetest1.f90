@@ -7,7 +7,7 @@
 ! ----------------------------------------------------------------
 ! ----------------------------------------------------------------
 ! Created January 23, 2003 by William A. Perkins
-! Last Change: Thu Jan 23 09:59:13 2003 by William A. Perkins <perk@leechong.pnl.gov>
+! Last Change: Mon Feb 10 09:05:44 2003 by William A. Perkins <perk@leechong.pnl.gov>
 ! ----------------------------------------------------------------
 ! RCS ID: $Id$ Battelle PNL
 
@@ -25,11 +25,11 @@ PROGRAM datetest1
   DO i = 1, 2
 
      IF (i .EQ. 1) THEN
-        CALL date_time_init()
+        CALL date_time_flags()
         WRITE (*,*) "Using default options ..."
         WRITE (*,*) 
      ELSE
-        CALL date_time_init(ydigits=5,sdigits=2)
+        CALL date_time_flags(ydigits=5,sdigits=2)
         WRITE (*,*) "Using different digits settings"
         WRITE (*,*) 
      END IF
@@ -52,6 +52,6 @@ PROGRAM datetest1
 
   END DO
 
-200 FORMAT(A25, ' = ', F16.7, ' ', A20)
-205 FORMAT(A25, ' = ', A20) 
+200 FORMAT(A25, ' = ', F16.7, ' ', A25)
+205 FORMAT(A25, ' = ', A25) 
 END PROGRAM datetest1
