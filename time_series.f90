@@ -7,7 +7,7 @@
 ! ----------------------------------------------------------------
 ! ----------------------------------------------------------------
 ! Created January 21, 2002 by William A. Perkins
-! Last Change: Tue Apr  8 14:17:17 2003 by William A. Perkins <perk@leechong.pnl.gov>
+! Last Change: Wed May 14 13:53:02 2003 by William A. Perkins <perk@leechong.pnl.gov>
 ! ----------------------------------------------------------------
 
 ! ----------------------------------------------------------------
@@ -44,6 +44,7 @@ MODULE time_series
      CHARACTER (LEN=1024) :: filename
      INTEGER :: fields, length
      INTEGER :: start
+     INTEGER :: limit_mode
      TYPE (time_series_point), POINTER :: series(:)
      DOUBLE PRECISION, POINTER :: current(:)
   END TYPE time_series_rec
@@ -56,7 +57,7 @@ MODULE time_series
        &TS_LIMIT_FLAT = 1, &    ! flatline when outside the series range
        &TS_LIMIT_EXTRAP = 2     ! extrapolate when outside the series range
 
-  INTEGER, PRIVATE :: limit_mode 
+  INTEGER, PRIVATE :: default_limit_mode 
 
                                 ! mode determines the form dates take
                                 ! in the input file
@@ -117,7 +118,7 @@ CONTAINS
     END IF
     IF (myfatal) buf = 'FATAL ' // buf
 
-    CALL error_message(msg, myfatal)
+    CALL error_message(buf, myfatal)
   END SUBROUTINE time_series_error
   
   ! ----------------------------------------------------------------
@@ -153,7 +154,7 @@ CONTAINS
     INTEGER, OPTIONAL, INTENT(IN) :: debug
 
     debug_level = 0
-    limit_mode = TS_LIMIT_NONE
+    default_limit_mode = TS_LIMIT_NONE
     time_series_mode = TS_DATE_MODE
 
     IF (PRESENT(debug))  debug_level = debug
@@ -164,7 +165,7 @@ CONTAINS
     IF (PRESENT(limit)) THEN
        SELECT CASE (limit)
        CASE (TS_LIMIT_NONE, TS_LIMIT_FLAT, TS_LIMIT_EXTRAP)
-          limit_mode = limit
+          default_limit_mode = limit
        CASE DEFAULT
           WRITE (buf, *) 'Invalid limit mode: ', limit
           CALL time_series_error(buf, fatal = .TRUE.)
@@ -185,25 +186,25 @@ CONTAINS
 
     IF (debug_level .GT. 5) THEN
        CALL time_series_log("module initialized")
-       buf = 'limit mode: '
-       SELECT CASE (limit_mode)
+       buf = 'default limit mode: '
+       SELECT CASE (default_limit_mode)
        CASE (TS_LIMIT_NONE)
-          buf = TRIM(buf) // 'Times not allowed outside series'
+          buf = TRIM(buf) // ' Times not allowed outside series'
        CASE (TS_LIMIT_FLAT)
-          buf = TRIM(buf) // 'Flat line for times outside series'
+          buf = TRIM(buf) // ' Flat line for times outside series'
        CASE (TS_LIMIT_EXTRAP)
-          buf = TRIM(buf) // 'Extrapolate for times outside series'
+          buf = TRIM(buf) // ' Extrapolate for times outside series'
        CASE DEFAULT
-          WRITE (buf, *) 'limit mode not understood ', limit_mode
+          WRITE (buf, *) 'limit mode not understood ', default_limit_mode
        END SELECT
        CALL time_series_log(buf)
 
        buf = 'date/time format: '
        SELECT CASE (time_series_mode)
        CASE (TS_DATE_MODE)
-          buf = TRIM(buf) // 'Calendar dates'
+          buf = TRIM(buf) // ' Calendar dates'
        CASE (TS_REAL_MODE)
-          buf = TRIM(buf) // 'Real numbers'
+          buf = TRIM(buf) // ' Real numbers'
        CASE DEFAULT
           WRITE (buf, *) 'date/time format mode not understood ', time_series_mode
        END SELECT
@@ -271,6 +272,7 @@ CONTAINS
     ts%fields = fields
     ts%start = 1
     ts%id = id
+    ts%limit_mode = default_limit_mode
     ALLOCATE(ts%current(fields))
     ts%current = 0.0
     ALLOCATE(ts%series(length))
@@ -287,28 +289,63 @@ CONTAINS
   END FUNCTION time_series_alloc
 
   ! ----------------------------------------------------------------
+  ! SUBROUTINE time_series_destroy
+  ! ----------------------------------------------------------------
+  SUBROUTINE time_series_destroy(ts)
+
+    IMPLICIT NONE
+
+    TYPE (time_series_rec), POINTER :: ts
+    INTEGER :: i
+
+    IF (.NOT. ASSOCIATED(ts)) RETURN
+
+    DO i = 1, ts%length
+       DEALLOCATE(ts%series(i)%field)
+    END DO
+    DEALLOCATE(ts%series, ts%current)
+    DEALLOCATE(ts)
+
+    NULLIFY(ts)
+
+  END SUBROUTINE time_series_destroy
+
+
+  ! ----------------------------------------------------------------
   ! INTEGER FUNCTION time_series_point_read
   ! This routine reads a single time series point from the specified
   ! file.  It returns the number of fields read, zero if end of file
   ! occurs, -1 if a date error occurs, or -2 if any other error occurs.
   ! ----------------------------------------------------------------
-  INTEGER FUNCTION time_series_point_read(iounit, pt) RESULT (nfld)
+  INTEGER FUNCTION time_series_point_read(iounit, pt, onefield) RESULT (nfld)
 
     IMPLICIT NONE
 
     INTEGER, INTENT(IN) :: iounit
     TYPE (time_series_point), INTENT(INOUT), OPTIONAL :: pt
+    LOGICAL, INTENT(IN), OPTIONAL :: onefield
 
     CHARACTER (LEN=20) :: sdate
     CHARACTER (LEN=20) :: stime
     DOUBLE PRECISION :: x(max_fields), datetime
+    LOGICAL :: fld1
+
+    fld1 = .FALSE.
+    IF (PRESENT(onefield)) fld1 = onefield
 
     nfld = 0
     x = bogus
 
     SELECT CASE (time_series_mode)
     CASE (TS_DATE_MODE)
-       READ(iounit, *, END=100, ERR=200) sdate, stime, x
+
+                                ! kludge so a slash does not have to
+                                ! appear at the end of the line
+       IF (fld1) THEN
+          READ(iounit, *, END=100, ERR=200) sdate, stime, x(1)
+       ELSE
+          READ(iounit, *, END=100, ERR=200) sdate, stime, x
+       END IF
 
                                 ! convert date/time to number
                                 ! check to make sure it's valid
@@ -322,7 +359,13 @@ CONTAINS
           RETURN
        END IF
     CASE (TS_REAL_MODE)
-       READ(iounit, *, END=100, ERR=200) datetime, x
+                                ! kludge so a slash does not have to
+                                ! appear at the end of the line
+       IF (fld1) THEN
+          READ(iounit, *, END=100, ERR=200) datetime, x(1)
+       ELSE
+          READ(iounit, *, END=100, ERR=200) datetime, x
+       END IF
     CASE DEFAULT
        CALL time_series_error('Module error: unknown time mode')
     END SELECT
@@ -400,7 +443,7 @@ CONTAINS
     ierr = 0
     i = 1
     DO WHILE (.TRUE.)
-       nfld = time_series_point_read(iounit)
+       nfld = time_series_point_read(iounit, onefield=(fields .EQ. 1))
        i = i + 1
        IF (nfld .LE. myfld .AND. nfld .GT. 0) THEN
           length = length + 1
@@ -432,7 +475,7 @@ CONTAINS
 
     ierr = 0
     DO i = 1, time_series_read%length
-       nfld = time_series_point_read(iounit, time_series_read%series(i))
+       nfld = time_series_point_read(iounit, time_series_read%series(i), onefield=(fields .EQ. 1))
        ! IF (nfld .LT. time_series_read%fields) THEN
        !    WRITE (buf, *) 'unexpected error, line ', i, '(', nfld, ')'
        !    CALL time_series_error(buf, ts = time_series_read, fatal = .TRUE.)
@@ -485,8 +528,14 @@ CONTAINS
        CALL time_series_log(buf)
     END IF
 
-    IF (datetime .LT. ts%series(1)%time) THEN
-       SELECT CASE (limit_mode)
+    IF (ts%length .LT. 2 .AND. ts%limit_mode .EQ. TS_LIMIT_FLAT) THEN
+       ts%current = ts%series(1)%field
+       RETURN
+    ELSE IF (ts%length .LT. 2) THEN
+       WRITE(buf, *) 'one point time series are allowed only with TS_LIMIT_FLAT'
+       CALL time_series_error(buf, ts = ts, fatal = .TRUE.)
+    ELSE IF (datetime .LT. ts%series(1)%time) THEN
+       SELECT CASE (ts%limit_mode)
        CASE (TS_LIMIT_NONE)
           CALL date_format(datetime, dstr)
           WRITE (buf,*) 'date (', TRIM(dstr), ' out of range'
@@ -498,7 +547,7 @@ CONTAINS
           i = 1
        END SELECT
     ELSE IF (datetime .GT. ts%series(ts%length)%time) THEN
-       SELECT CASE (limit_mode)
+       SELECT CASE (ts%limit_mode)
        CASE (TS_LIMIT_NONE)
           CALL date_format(datetime, dstr)
           WRITE (buf,*) 'date (', TRIM(dstr), ' out of range'
@@ -509,7 +558,7 @@ CONTAINS
        CASE (TS_LIMIT_EXTRAP)
           i = ts%length - 1
        END SELECT
-    ELSE
+    ELSE 
        i = ts%start
        DO i = ts%start, ts%length - 1
           IF (datetime .GE. ts%series(i)%time .AND.&
@@ -534,6 +583,74 @@ CONTAINS
          &CALL time_series_log('Leaving time_series_interp')
 
   END SUBROUTINE time_series_interp
+
+  ! ----------------------------------------------------------------
+  ! LOGICAL FUNCTION time_series_increases
+  ! ----------------------------------------------------------------
+  LOGICAL FUNCTION time_series_increases(ts, field, fix)
+
+    IMPLICIT NONE
+
+    TYPE (time_series_rec), POINTER :: ts
+    INTEGER, INTENT(IN), OPTIONAL :: field
+    LOGICAL, INTENT(IN), OPTIONAL :: fix
+
+    INTEGER :: myfld, i, nfix
+    LOGICAL :: flag, myfix
+    CHARACTER (LEN=1024) :: msg, buf
+
+    nfix = 0
+    myfld = 1
+    myfix = .TRUE.
+
+    IF (PRESENT(field)) myfld = field
+    IF (PRESENT(fix)) myfix = fix
+
+    time_series_increases = .TRUE.
+
+    IF (ts%length < 2) RETURN
+
+    DO i = 2, ts%length
+       flag = (ts%series(i)%field(myfld) .GE. ts%series(i-1)%field(myfld))
+       IF (.NOT. flag) THEN
+          SELECT CASE (time_series_mode)
+          CASE (TS_DATE_MODE)
+             CALL date_format(ts%series(i-1)%time, buf)
+             WRITE(msg, 100)  myfld, buf, ts%series(i-1)%field(myfld), ts%series(i)%field(myfld)
+          CASE DEFAULT
+             WRITE(msg, 102)  myfld, ts%series(i-1)%time, ts%series(i-1)%field(myfld), ts%series(i)%field(myfld)
+          END SELECT
+          CALL time_series_error(msg, ts=ts, fatal=.FALSE.)
+          IF (myfix) THEN
+             SELECT CASE (time_series_mode)
+             CASE (TS_DATE_MODE)
+                WRITE(msg, 110) buf, ts%series(i)%field(myfld), ts%series(i-1)%field(myfld)
+             CASE DEFAULT
+                WRITE(msg, 112) ts%series(i-1)%time, ts%series(i)%field(myfld), ts%series(i-1)%field(myfld)
+             END SELECT
+             CALL time_series_error(msg, ts=ts, fatal=.FALSE.)
+             ts%series(i)%field(myfld) = ts%series(i-1)%field(myfld)
+             nfix = nfix + 1
+          END IF
+          time_series_increases = .FALSE.
+       END IF
+    END DO
+
+    IF (.NOT. time_series_increases) THEN
+       WRITE(msg,*) 'field ', myfld, ' does not increase always'
+       CALL time_series_error(msg, ts=ts, fatal=.FALSE.)
+       IF (myfix) THEN
+          WRITE(msg,*) nfix, ' values modified'
+          CALL time_series_error(msg, ts=ts, fatal=.FALSE.)
+       END IF
+    END IF
+
+100 FORMAT('field ', I2, ' does not monotonically increase at time ', A25, '(', G10.4, '>', G10.4, ')')
+102 FORMAT('field ', I2, ' does not monotonically increase at time ', G10.4, '(', G10.4, '>', G10.4, ')')
+110 FORMAT('changed value at time ', A25, ' from ', G10.4, ' to ', G10.4)
+112 FORMAT('changed value at time ', G10.4, ' from ', G10.4, ' to ', G10.4)
+  END FUNCTION time_series_increases
+
 
 
 END MODULE time_series

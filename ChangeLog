@@ -1,3 +1,14 @@
+2003-05-14  William A. Perkins  <william.perkins@pnl.gov>
+
+	* tstest3.f90: test of increasing and one point time series
+
+	* tstest3b.dat, tstest3a.dat: added data files for tstest3.f90
+
+	* time_series.f90: added function time_series_increases to check
+	for monotonically increasing series; made sure one point time
+	series work, but only with TS_LIMIT_FLAT; also added
+	time_series_destroy to deallocate time series.
+
 2003-04-28  William A. Perkins  <william.perkins@pnl.gov>
 
 	* acinclude.m4: use F90FLAGS set in the environment; remove CPU
