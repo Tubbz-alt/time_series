@@ -7,7 +7,7 @@
 ! ----------------------------------------------------------------
 ! ----------------------------------------------------------------
 ! Created January 21, 2002 by William A. Perkins
-! Last Change: Sat Mar 16 20:13:58 2002 by William A. Perkins <perk@localhost>
+! Last Change: Sun Mar 24 08:29:06 2002 by William A. Perkins <perk@localhost>
 ! ----------------------------------------------------------------
 
 ! ----------------------------------------------------------------
@@ -24,12 +24,14 @@ MODULE time_series
   INTEGER, PRIVATE, PARAMETER :: max_fields = 10
   DOUBLE PRECISION, PRIVATE, PARAMETER :: bogus = -9999.0
 
+  CHARACTER (LEN=1024), PRIVATE :: buf, buf1
+
   ! ----------------------------------------------------------------
   ! TYPE time_series_point
   ! stores a single time with multiple values
   ! ----------------------------------------------------------------
   TYPE time_series_point
-     TYPE (datetime_struct) :: datetime
+     DOUBLE PRECISION :: time
      DOUBLE PRECISION, POINTER :: field(:)
   END TYPE time_series_point
 
@@ -45,7 +47,8 @@ MODULE time_series
      DOUBLE PRECISION, POINTER :: current(:)
   END TYPE time_series_rec
 
-                                ! mode determines interpolated value when outside the series range 
+                                ! mode determines interpolated value
+                                ! when outside the series range
 
   INTEGER, PUBLIC, PARAMETER :: &
        &TS_LIMIT_NONE = 0, &    ! do not allow time outside the series range
@@ -53,6 +56,15 @@ MODULE time_series
        &TS_LIMIT_EXTRAP = 2     ! extrapolate when outside the series range
 
   INTEGER, PRIVATE :: limit_mode 
+
+                                ! mode determines the form dates take
+                                ! in the input file
+
+  INTEGER, PUBLIC, PARAMETER :: &
+       &TS_DATE_MODE = 0, &     ! dates are expected
+       &TS_REAL_MODE = 1        ! real numbers are expected
+
+  INTEGER, PRIVATE :: time_series_mode
 
                                 ! each time series is assigned an
                                 ! integer id
@@ -78,24 +90,23 @@ CONTAINS
     LOGICAL, INTENT(IN), OPTIONAL :: fatal
     TYPE (time_series_rec), POINTER, OPTIONAL :: ts
 
-    CHARACTER (LEN=1024) :: s,n
     LOGICAL :: myfatal
 
     myfatal = .FALSE.
     IF (PRESENT(fatal)) myfatal = fatal
 
     IF (PRESENT(ts)) THEN
-       WRITE (n, *) ts%id
-       WRITE (s, *) 'ERROR: time series ', TRIM(n), ' (', TRIM(ts%filename), &
+       WRITE (buf1, *) ts%id
+       WRITE (buf, *) 'ERROR: time series ', TRIM(buf1), ' (', TRIM(ts%filename), &
             &'): ', TRIM(msg)
     ELSE
-       WRITE (s, *) 'ERROR: time series: ', TRIM(msg)
+       WRITE (buf, *) 'ERROR: time series: ', TRIM(msg)
     END IF
-    IF (myfatal) s = 'FATAL ' // s
+    IF (myfatal) buf = 'FATAL ' // buf
 
-    WRITE (*,*) TRIM(s)
-    IF (logunit .GT. 0)  WRITE (logunit,*) TRIM(s)
-    IF (errunit .GT. 0)  WRITE (errunit,*) TRIM(s)
+    WRITE (*,*) TRIM(buf)
+    IF (logunit .GT. 0)  WRITE (logunit,*) TRIM(buf)
+    IF (errunit .GT. 0)  WRITE (errunit,*) TRIM(buf)
 
     IF (myfatal) CALL exit(10)
 
@@ -111,37 +122,35 @@ CONTAINS
     TYPE (time_series_rec), POINTER, OPTIONAL :: ts
     CHARACTER (LEN=*), INTENT(IN) :: msg
 
-    CHARACTER (LEN=1024) :: s, n
-
     IF (logunit .LE. 0) RETURN
 
     IF (PRESENT(ts)) THEN
-       WRITE (n, *) ts%id
-       WRITE (s, *) 'STATUS: time series ', TRIM(n), ': ', TRIM(ts%filename), &
+       WRITE (buf1, *) ts%id
+       WRITE (buf, *) 'STATUS: time series ', TRIM(buf1), ': ', TRIM(ts%filename), &
             &': ', TRIM(msg)
     ELSE
-       WRITE (s, *) 'STATUS: time series: ', TRIM(msg)
+       WRITE (buf, *) 'STATUS: time series: ', TRIM(msg)
     END IF
 
-    WRITE (logunit,*) TRIM(s)
+    WRITE (logunit,*) TRIM(buf)
 
   END SUBROUTINE time_series_log
 
   ! ----------------------------------------------------------------
   ! SUBROUTINE time_series_module_init
   ! ----------------------------------------------------------------
-  SUBROUTINE time_series_module_init(log, err, verb, limit)
+  SUBROUTINE time_series_module_init(log, err, verb, limit, mode)
 
     IMPLICIT NONE
 
-    INTEGER, OPTIONAL, INTENT(IN) :: log, err, limit
+    INTEGER, OPTIONAL, INTENT(IN) :: log, err, limit, mode
     LOGICAL, OPTIONAL, INTENT(IN) :: verb
-    CHARACTER (LEN=1024) :: msg
 
     logunit = -1
     errunit = -1
     verbose = .FALSE.
     limit_mode = TS_LIMIT_NONE
+    time_series_mode = TS_DATE_MODE
 
     IF (PRESENT(log)) logunit = log
     IF (PRESENT(err)) errunit = err
@@ -152,8 +161,18 @@ CONTAINS
        CASE (TS_LIMIT_NONE, TS_LIMIT_FLAT, TS_LIMIT_EXTRAP)
           limit_mode = limit
        CASE DEFAULT
-          WRITE (msg, *) 'Invalid limit mode: ', limit
-          CALL time_series_error(msg, fatal = .TRUE.)
+          WRITE (buf, *) 'Invalid limit mode: ', limit
+          CALL time_series_error(buf, fatal = .TRUE.)
+       END SELECT
+    END IF
+
+    IF (PRESENT(mode)) THEN
+       SELECT CASE (mode)
+       CASE (TS_DATE_MODE, TS_REAL_MODE)
+          time_series_mode = mode
+       CASE DEFAULT
+          WRITE (buf, *) 'Invalid date/time format mode: ', mode
+          CALL time_series_error(buf, fatal = .TRUE.)
        END SELECT
     END IF
 
@@ -161,18 +180,28 @@ CONTAINS
 
     CALL time_series_log("module initialized")
     IF (verbose) THEN
-       msg = 'limit mode: '
+       buf = 'limit mode: '
        SELECT CASE (limit_mode)
        CASE (TS_LIMIT_NONE)
-          msg = TRIM(msg) // 'Times not allowed outside series'
+          buf = TRIM(buf) // 'Times not allowed outside series'
        CASE (TS_LIMIT_FLAT)
-          msg = TRIM(msg) // 'Flat line for times outside series'
+          buf = TRIM(buf) // 'Flat line for times outside series'
        CASE (TS_LIMIT_EXTRAP)
-          msg = TRIM(msg) // 'Extrapolate for times outside series'
+          buf = TRIM(buf) // 'Extrapolate for times outside series'
        CASE DEFAULT
-          WRITE (msg, *) 'limit mode not understood ', limit_mode
+          WRITE (buf, *) 'limit mode not understood ', limit_mode
        END SELECT
-       CALL time_series_log(msg)
+       CALL time_series_log(buf)
+
+       buf = 'date/time format: '
+       SELECT CASE (time_series_mode)
+       CASE (TS_DATE_MODE)
+          buf = TRIM(buf) // 'Calendar dates'
+       CASE (TS_REAL_MODE)
+          buf = TRIM(buf) // 'Real numbers'
+       CASE DEFAULT
+          WRITE (buf, *) 'date/time format mode not understood ', time_series_mode
+       END SELECT
     END IF
 
   END SUBROUTINE time_series_module_init
@@ -204,9 +233,7 @@ CONTAINS
     nfld = 1
     IF (PRESENT(fields)) nfld = fields
 
-    pt%datetime%time = 0.0
-    pt%datetime%date_string = ''
-    pt%datetime%time_string = ''
+    pt%time = 0.0
     ALLOCATE(pt%field(fields))
     pt%field = bogus
 
@@ -237,6 +264,9 @@ CONTAINS
        CALL time_series_point_init(ts%series(i), fields)
     END DO
        
+    IF (verbose) THEN
+       WRITE(buf, *) 'created with ', fields, ' fields and ', length, ' times'
+    END IF
     
   END FUNCTION time_series_alloc
 
@@ -282,9 +312,7 @@ CONTAINS
                                 ! pass on the data read
 
     IF (PRESENT(pt)) THEN
-       pt%datetime%date_string = sdate
-       pt%datetime%time_string = stime
-       pt%datetime%time = datetime
+       pt%time = datetime
        pt%field(1:nfld) = x(1:nfld)
     END IF
     RETURN
@@ -308,7 +336,6 @@ CONTAINS
 
     LOGICAL :: exists
     INTEGER :: myfld, myid, length, istat, iounit, ierr, nfld, i
-    CHARACTER (LEN=1024) :: msg
 
     IF (.NOT. PRESENT(fields)) THEN
        myfld = 1
@@ -324,8 +351,8 @@ CONTAINS
 
     INQUIRE(FILE=filename, EXIST=exists)
     IF (.NOT. exists) THEN 
-       WRITE (msg,*) TRIM(filename), ': file does not exist'
-       CALL time_series_error(msg, fatal = .TRUE.)
+       WRITE (buf,*) TRIM(filename), ': file does not exist'
+       CALL time_series_error(buf, fatal = .TRUE.)
     END IF
 
                                 ! open the file and see how many
@@ -333,11 +360,11 @@ CONTAINS
 
     OPEN(UNIT=iounit, FILE=filename, STATUS='old', IOSTAT=istat, FORM='formatted')
     IF (istat .NE. 0) THEN
-       WRITE (msg,*) 'cannot open file ', TRIM(filename)
-       CALL time_series_error(msg, fatal = .TRUE.)
+       WRITE (buf,*) 'cannot open file ', TRIM(filename)
+       CALL time_series_error(buf, fatal = .TRUE.)
     END IF
 
-    READ (iounit, *) msg       ! throw away first line in file
+    READ (iounit, *) buf       ! throw away first line in file
 
     length = 0
     ierr = 0
@@ -350,16 +377,16 @@ CONTAINS
        ELSE IF (nfld .EQ. 0) THEN
           EXIT
        ELSE
-          WRITE (msg, *) TRIM(filename), ': line ', i, &
+          WRITE (buf, *) TRIM(filename), ': line ', i, &
                &': fields read = ', nfld, ' (expected ', fields, ')'
-          CALL time_series_error(msg)
+          CALL time_series_error(buf)
           ierr = ierr + 1
        END IF
     END DO
 
     IF (ierr .GT. 0) THEN
-       WRITE (msg, *) TRIM(filename), ': too many errors'
-       CALL time_series_error(msg, fatal = .TRUE.)
+       WRITE (buf, *) TRIM(filename), ': too many errors'
+       CALL time_series_error(buf, fatal = .TRUE.)
     END IF
 
                                 ! now that we know how many points we
@@ -371,30 +398,28 @@ CONTAINS
 
     REWIND(iounit)
 
-    READ (iounit, *) msg       ! throw away first line in file
+    READ (iounit, *) buf       ! throw away first line in file
 
     ierr = 0
     DO i = 1, time_series_read%length
        nfld = time_series_point_read(iounit, time_series_read%series(i))
        IF (nfld .LT. time_series_read%fields) THEN
-          WRITE (msg, *) 'unexpected error, line ', i, '(', nfld, ')'
-          CALL time_series_error(msg, ts = time_series_read, fatal = .TRUE.)
+          WRITE (buf, *) 'unexpected error, line ', i, '(', nfld, ')'
+          CALL time_series_error(buf, ts = time_series_read, fatal = .TRUE.)
        END IF
     END DO
 
     CLOSE (iounit)
-    WRITE (msg, *) 'successfully read ', time_series_read%length , ' points'
-    CALL time_series_log(msg, ts = time_series_read)
+    WRITE (buf, *) 'successfully read ', time_series_read%length , ' points'
+    CALL time_series_log(buf, ts = time_series_read)
 
     IF (verbose) THEN
-       WRITE(msg, *) 'start = ', &
-            &time_series_read%series(1)%datetime%date_string, ' ',&
-            &time_series_read%series(1)%datetime%time_string
-       CALL time_series_log(msg, ts = time_series_read)
-       WRITE(msg, *) 'end = ', &
-            &time_series_read%series(time_series_read%length)%datetime%date_string, ' ',&
-            &time_series_read%series(time_series_read%length)%datetime%time_string
-       CALL time_series_log(msg, ts = time_series_read)
+       CALL date_format(time_series_read%series(1)%time, buf)
+       WRITE(buf, *) 'start = ', TRIM(buf)
+       CALL time_series_log(buf, ts = time_series_read)
+       CALL date_format(time_series_read%series(time_series_read%length )%time, buf)
+       WRITE(buf, *) 'end = ', TRIM(buf)
+       CALL time_series_log(buf, ts = time_series_read)
     END IF
   END FUNCTION time_series_read
 
@@ -408,28 +433,28 @@ CONTAINS
     TYPE (time_series_rec), POINTER :: ts
     DOUBLE PRECISION, INTENT(IN) :: datetime
 
-    CHARACTER (LEN=1024) :: msg, dstr, tstr
+    CHARACTER (LEN=1024) :: dstr
     INTEGER :: i
     DOUBLE PRECISION :: factor
 
-    IF (datetime .LT. ts%series(1)%datetime%time) THEN
+    IF (datetime .LT. ts%series(1)%time) THEN
        SELECT CASE (limit_mode)
        CASE (TS_LIMIT_NONE)
-          CALL decimal_to_date(datetime, dstr, tstr)
-          WRITE (msg,*) 'date (', TRIM(dstr), ' ', TRIM(tstr), ' out of range'
-          CALL time_series_error(msg, ts = ts, fatal = .TRUE.)
+          CALL date_format(datetime, dstr)
+          WRITE (buf,*) 'date (', TRIM(dstr), ' out of range'
+          CALL time_series_error(buf, ts = ts, fatal = .TRUE.)
        CASE (TS_LIMIT_FLAT)
           ts%current = ts%series(1)%field
           RETURN
        CASE (TS_LIMIT_EXTRAP)
           i = 1
        END SELECT
-    ELSE IF (datetime .GT. ts%series(ts%length)%datetime%time) THEN
+    ELSE IF (datetime .GT. ts%series(ts%length)%time) THEN
        SELECT CASE (limit_mode)
        CASE (TS_LIMIT_NONE)
-          CALL decimal_to_date(datetime, dstr, tstr)
-          WRITE (msg,*) 'date (', TRIM(dstr), ' ', TRIM(tstr), ' out of range'
-          CALL time_series_error(msg, ts = ts, fatal = .TRUE.)
+          CALL date_format(datetime, dstr)
+          WRITE (buf,*) 'date (', TRIM(dstr), ' out of range'
+          CALL time_series_error(buf, ts = ts, fatal = .TRUE.)
        CASE (TS_LIMIT_FLAT)
           ts%current = ts%series(ts%length)%field
           RETURN
@@ -439,14 +464,14 @@ CONTAINS
     ELSE
        i = ts%start
        DO i = ts%start, ts%length - 1
-          IF (datetime .GE. ts%series(i)%datetime%time .AND.&
-               &datetime .LE. ts%series(i+1)%datetime%time) EXIT
+          IF (datetime .GE. ts%series(i)%time .AND.&
+               &datetime .LE. ts%series(i+1)%time) EXIT
        END DO
        IF (i .GT. 1) ts%start = i - 1
     END IF
 
-    factor = (datetime - ts%series(i)%datetime%time)/&
-         &(ts%series(i + 1)%datetime%time - ts%series(i)%datetime%time)
+    factor = (datetime - ts%series(i)%time)/&
+         &(ts%series(i + 1)%time - ts%series(i)%time)
     ts%current = factor*(ts%series(i+1)%field - ts%series(i)%field) +&
          &ts%series(i)%field
 

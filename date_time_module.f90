@@ -140,3 +140,24 @@ SUBROUTINE decimal_to_date(decimal_date, date_string, time_string)
 END SUBROUTINE decimal_to_date
 
 END MODULE date_time
+
+! ----------------------------------------------------------------
+! SUBROUTINE date_format
+! ----------------------------------------------------------------
+SUBROUTINE date_format(time, s)
+
+  USE JULIAN
+  IMPLICIT NONE
+  DOUBLE PRECISION, INTENT(IN) :: time
+  CHARACTER (LEN=*), INTENT(OUT) :: s
+  
+  DOUBLE PRECISION :: sec
+  INTEGER :: mon, day, yr, hr, min
+
+  CALL CALCDATE(time,mon,day,yr,hr,min,sec)
+
+  WRITE(s, 100) mon, day, yr, hr, min, INT(sec)
+
+100 FORMAT(i2.2, '-', i2.2, '-', i4.4, ' ', i2.2, ':', i2.2, ':', i2.2)
+
+END SUBROUTINE date_format

@@ -7,7 +7,7 @@
 # -------------------------------------------------------------
 # -------------------------------------------------------------
 # Created February  3, 2002 by William A. Perkins
-# Last Change: Sat Mar 16 13:16:42 2002 by William A. Perkins <perk@localhost>
+# Last Change: Sun Mar 24 08:39:33 2002 by William A. Perkins <perk@localhost>
 # -------------------------------------------------------------
 
 
@@ -42,12 +42,14 @@ clean::
 	rm -f ${LIB}
 	rm -f *.mod
 
-test: tstest
+test: tstest1
 
-tstest: tstest.o 
-	${LINK.f90} -o $@ tstest.o ${LIB} ${LDLIBS}
+tstest1: tstest1.o ${LIB}
+	${LINK.f90} -o $@ tstest1.o ${LIB} ${LDLIBS}
 
-tstest.o: ${LIB}
+clean::
+	rm -f tstest1.o
+	rm -f tstest1
 
 # dependancies for individual object files
 
