@@ -7,7 +7,7 @@
 ! ----------------------------------------------------------------
 ! ----------------------------------------------------------------
 ! Created October 21, 2002 by William A. Perkins
-! Last Change: Thu Jan 23 13:33:54 2003 by William A. Perkins <perk@leechong.pnl.gov>
+! Last Change: Tue Mar 25 15:22:25 2003 by William A. Perkins <perk@leechong.pnl.gov>
 ! ----------------------------------------------------------------
 
 ! ----------------------------------------------------------------
@@ -30,7 +30,7 @@ CONTAINS
 
     IMPLICIT NONE
 
-    CHARACTER*(*), INTENT(IN) :: msg
+    CHARACTER (LEN=*), INTENT(IN) :: msg
     LOGICAL, INTENT(IN), OPTIONAL :: fatal
 
     LOGICAL :: die = .FALSE.
@@ -51,7 +51,7 @@ CONTAINS
 
     IMPLICIT NONE
 
-    CHARACTER*(*), INTENT(IN) :: msg
+    CHARACTER (LEN=*), INTENT(IN) :: msg
 
     WRITE(status_iounit, *) TRIM(msg)
 
@@ -66,7 +66,7 @@ CONTAINS
 
     IMPLICIT NONE
 
-    CHARACTER*(*), INTENT(IN) :: fname
+    CHARACTER (LEN=*), INTENT(IN) :: fname
     INTEGER, INTENT(IN) :: iunit
 
     LOGICAL :: file_exist

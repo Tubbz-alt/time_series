@@ -1,3 +1,16 @@
+2003-03-26  William A. Perkins  <william.perkins@pnl.gov>
+
+	* configure.in: created for autotools
+
+	* bootstrap.sh: created for autotools
+
+	* Makefile.am: created for autotools
+
+	* Makefile: moved to Makefile.noauto
+
+	* utility.f90: The Intel compiler does not like CHARACTER*(*)
+	declarations -- changed them to CHARACTER (LEN=*)
+
 2003-01-23  William A. Perkins  <william.perkins@pnl.gov>
 
 	* date_time_module.f90 (date_time_init): ignore the sdigits option

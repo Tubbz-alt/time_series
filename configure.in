@@ -1,0 +1,183 @@
+#! /bin/sh
+# -------------------------------------------------------------
+# file: configure.in
+# -------------------------------------------------------------
+# -------------------------------------------------------------
+# Battelle Memorial Institute
+# Pacific Northwest Laboratory
+# -------------------------------------------------------------
+# -------------------------------------------------------------
+# Created March 25, 2003 by William A. Perkins
+# Last Change: Wed Mar 26 09:32:48 2003 by William A. Perkins <perk@leechong.pnl.gov>
+# -------------------------------------------------------------
+
+# -------------------------------------------------------------
+# Initialization
+# -------------------------------------------------------------
+AC_INIT(julian.f90)
+AM_INIT_AUTOMAKE(libts,0.1)
+AC_CANONICAL_HOST()
+
+# -------------------------------------------------------------
+# some thing we need in the makefile
+# -------------------------------------------------------------
+AC_SUBST(EXTRAF77LIBS)
+AC_SUBST(EXTRAF77FLAGS)
+AC_SUBST(EXTRAF77LDFLAGS)
+AC_SUBST(F90MODULEEXT)
+
+# -------------------------------------------------------------
+# adjust compiler list based on host system type.
+# This represents those platform to which this code has  been ported.  
+# -------------------------------------------------------------
+AC_MSG_CHECKING(Building Fortran 90 compiler list for $host)
+case $host in
+    i?86*linux*)
+        compilers="f95 ifc lf95 f90"
+        ;;
+    alpha*linux*|alphaev*-dec-osf*)
+        compilers="f90 f95 fort"
+        ;;
+    mips-*-irix*)
+        compilers="f90"
+        ;;
+    *)
+        AC_MSG_ERROR(Cannot compile for unknown system $host)
+esac
+AC_MSG_RESULT($compilers)
+
+# -------------------------------------------------------------
+# Checks for Programs we need
+# -------------------------------------------------------------
+# AC_PROG_F77
+if test -z "$F77"; then
+  AC_CHECK_PROGS(F77, $compilers)
+    test -z "$F77" && AC_MSG_ERROR([no acceptable Fortran 90 compiler found in \$PATH])
+fi
+AC_PROG_RANLIB
+AC_PROG_INSTALL
+AC_PROG_LN_S
+
+AC_LANG_FORTRAN77
+
+# -------------------------------------------------------------
+# check some command line options
+# -------------------------------------------------------------
+dooptimize=""
+AC_ARG_ENABLE(optimize,
+  [  --enable-optimize            turn on optimization],
+    dooptimize=true,
+    dooptimize="")
+
+if test -n "$dooptimize" ; then
+    dodebug=""
+else
+    dodebug=true
+fi
+AC_ARG_ENABLE(debug,
+  [  --enable-debug               turn on debugging (use with --enable-optimize)],
+    dodebug=true)
+
+AC_ARG_ENABLE(profile,
+  [  --enable-profile             turn on profiling],
+    doprofile=true,
+    doprofile="")
+# -------------------------------------------------------------
+# set appropriate flags for specified compiler
+# -------------------------------------------------------------
+F90MODULEEXT=unknown
+DEBUG=""
+OPTIMIZE=""
+PROFILE=""
+case $host in
+    i?86*linux*)
+        case $F77 in
+                                # The Absoft compiler
+            f95|f90)
+                EXTRAF77FLAGS='-trap=INVALID,DIVBYZERO,OVERFLOW  -YEXT_SFX=_ -YEXT_NAMES=LCS -YCFRL=1'
+                EXTRAF77LDFLAGS=''
+                EXTRAF77LIBS="$EXTRAF77LIBS -lU77"
+                F90MODULEEXT=mod
+                OPTIMIZE="-O"
+                DEBUG="-g"
+                PROFILE="-P"
+                ;;
+                                #  The Intel compiler
+            ifc)
+                EXTRAF77FLAGS='-static -Vaxlib'
+                EXTRAF77LDFLAGS=''
+                EXTRAF77LIBS="-lPEPCF90"
+                F90MODULEEXT=d
+                OPTIMIZE="-tpp7 -O3 -axW -xW"
+                DEBUG="-g"
+                PROFILE="-prof_gen"
+                ;;
+                                # The Lahey compiler
+            lf95)
+                EXTRAF77FLAGS='--nin --trap'
+                EXTRAF77LDFLAGS='--staticlink'
+                EXTRAF77LIBS=""
+                F90MODULEEXT=mod
+                OPTIMIZE="-O"
+                DEBUG="-g"
+                PROFILE=""
+                ;;
+            *)
+                AC_MSG_ERROR(Fortran 90 Compiler ($F77) Unknown)
+        esac
+        ;;
+    alpha*linux*|alphaev*-dec-osf*)
+                                # The DEC/Compaq/HP compiler on Alpha Platforms
+        case $F77 in
+            f90|f95|fort)
+                EXTRAF77FLAGS='-fpe'
+                EXTRAF77LDFLAGS='-non_shared'
+                EXTRAF77LIBS=""
+                F90MODULEEXT=mod
+                OPTIMIZE="-O -fast"
+                DEBUG="-g"
+                PROFILE="-pg"
+                ;;
+            *)
+                AC_MSG_ERROR(Fortran 90 Compiler ($F77) Unknown)
+        esac
+        ;;
+    mips-*-irix*)
+        case $F77 in
+                                # The stock SGI compiler
+            f90)
+                EXTRAF77FLAGS='-TARG:platform=IP30  -OPT:Olimit=0'
+                EXTRAF77LDFLAGS=''
+                EXTRAF77LIBS="-lfpe"
+                F90MODULEEXT=mod
+                OPTIMIZE="-O"
+                DEBUG="-g"
+                PROFILE=""
+                ;;
+            *)
+                
+        esac
+        ;;
+    *)
+        
+esac
+
+
+FFLAGS="$FFLAGS $EXTRAF77FLAGS"
+if test -n "$dooptimize"; then
+    FFLAGS="$FFLAGS $OPTIMIZE"
+fi
+if test -n "$dodebug"; then
+    FFLAGS="$FFLAGS $DEBUG"
+fi
+if test -n "$doprofile"; then
+    FFLAGS="$FFLAGS $PROFILE"
+fi
+
+LDFLAGS="$LDFLAGS $EXTRA77LDFLAGS"
+LIBS="$LIBS $EXTRAF77LIBS"
+
+AC_PROG_F77_WORKS
+
+
+AC_OUTPUT(Makefile)
