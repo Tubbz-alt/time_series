@@ -1,3 +1,8 @@
+2003-04-28  William A. Perkins  <william.perkins@pnl.gov>
+
+	* acinclude.m4: use F90FLAGS set in the environment; remove CPU
+	specific options from Intel compiler switches 
+
 2003-04-15  William A. Perkins  <william.perkins@pnl.gov>
 
 	* utility.f90: error_message's should include the word ERROR and

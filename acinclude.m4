@@ -62,8 +62,8 @@ case $host in
         case $F77 in
                                 # The Absoft compiler
             f95|f90)
-                F90FLAGS='-trap=INVALID,DIVBYZERO,OVERFLOW  -YEXT_SFX=_ -YEXT_NAMES=LCS -YCFRL=1'
-                F90LDFLAGS=''
+                F90FLAGS="$F90FLAGS -trap=INVALID,DIVBYZERO,OVERFLOW  -YEXT_SFX=_ -YEXT_NAMES=LCS -YCFRL=1"
+                F90LDFLAGS=""
                 F90LIBS="-lU77"
                 F90MODULEEXT=mod
                 F90DEBUG="-g"
@@ -72,17 +72,17 @@ case $host in
                 ;;
                                 #  The Intel compiler
             ifc)
-                F90FLAGS='-static -Vaxlib -w'
-                F90LDFLAGS=''
+                F90FLAGS="$F90FLAGS -static -Vaxlib -w"
+                F90LDFLAGS=""
                 F90LIBS="-lPEPCF90"
                 F90MODULEEXT=d
-                F90OPTIMIZE="-tpp7 -O3 -axW -xW"
+                F90OPTIMIZE="-O3"
                 F90PROFILE="-p"
                 ;;
                                 # The Lahey compiler
             lf95)
-                F90FLAGS='--nin --trap'
-                F90LDFLAGS='--staticlink'
+                F90FLAGS="$F90FLAGS --nin --trap"
+                F90LDFLAGS="--staticlink"
                 F90LIBS=""
                 F90MODULEEXT=mod
                 F90PROFILE=""
@@ -95,8 +95,8 @@ case $host in
                                 # The DEC/Compaq/HP compiler on Alpha Platforms
         case $F77 in
             f90|f95|fort)
-                F90FLAGS='-fpe'
-                F90LDFLAGS='-non_shared'
+                F90FLAGS="$F90FLAGS -fpe"
+                F90LDFLAGS="-non_shared"
                 F90LIBS=""
                 F90MODULEEXT=mod
                 F90OPTIMIZE="-O -fast"
@@ -110,8 +110,8 @@ case $host in
         case $F77 in
                                 # The stock SGI compiler
             f90)
-                F90FLAGS='-TARG:platform=IP30  -OPT:Olimit=0'
-                F90LDFLAGS=''
+                F90FLAGS="$F90FLAGS -TARG:platform=IP30  -OPT:Olimit=0"
+                F90LDFLAGS=""
                 F90LIBS="-lfpe"
                 F90PROFILE=""
                 ;;
