@@ -69,23 +69,26 @@ CONTAINS
 
 DOUBLE PRECISION FUNCTION date_to_decimal(date_string, time_string)
 
-USE JULIAN
+  USE JULIAN
 
-CHARACTER (LEN=10) :: date_string
-CHARACTER (LEN=8)	 :: time_string
+  CHARACTER (LEN=10) :: date_string
+  CHARACTER (LEN=8)	 :: time_string
 
-INTEGER :: mon,dd,yr,hh,mm,ss
+  INTEGER :: mon,dd,yr,hh,mm,ss
 
-READ(date_string(1:2),'(i2)')mon
-READ(date_string(4:5),'(i2)')dd
-READ(date_string(7:10),'(i4)')yr
-READ(time_string(1:2),'(i2)')hh
-READ(time_string(4:5),'(i2)')mm
-READ(time_string(7:8),'(i2)')ss
+  date_to_decimal = 0.0
+
+  READ(date_string(1:2),'(i2)',ERR=100)mon
+  READ(date_string(4:5),'(i2)',ERR=100)dd
+  READ(date_string(7:10),'(i4)',ERR=100)yr
+  READ(time_string(1:2),'(i2)',ERR=100)hh
+  READ(time_string(4:5),'(i2)',ERR=100)mm
+  READ(time_string(7:8),'(i2)',ERR=100)ss
 
 
 date_to_decimal = juldays(mon, dd, yr, hh, mm, DBLE(ss))
 
+100 RETURN
 
 END FUNCTION date_to_decimal
 
@@ -129,14 +132,11 @@ SUBROUTINE decimal_to_date(decimal_date, date_string, time_string)
 
   CALL CALCDATE(decimal_date,mon,day,yr,hr,min,sec)
   
-  WRITE(date_string(7:10),'(i4.4)')yr
-  WRITE(date_string(4:5),'(i2.2)')day
-  WRITE(date_string(1:2),'(i2.2)')mon
+  WRITE(date_string, 100) mon, day, yr
+  WRITE(time_string, 200) hr, min, INT(sec)
 
-  WRITE(time_string(1:2),'(i2.2)')hr
-  WRITE(time_string(4:5),'(i2.2)')min
-  WRITE(time_string(7:8),'(i2.2)') INT(sec)
-
+100 FORMAT(i2.2, '-', i2.2, '-', i4.4)
+200 FORMAT(i2.2, ':', i2.2, ':', i2.2)
 END SUBROUTINE decimal_to_date
 
 END MODULE date_time

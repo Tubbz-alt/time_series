@@ -7,22 +7,25 @@
 # -------------------------------------------------------------
 # -------------------------------------------------------------
 # Created February  3, 2002 by William A. Perkins
-# Last Change: Sun Feb  3 21:13:27 2002 by William A. Perkins <perk@localhost>
+# Last Change: Sat Mar 16 13:16:42 2002 by William A. Perkins <perk@localhost>
 # -------------------------------------------------------------
 
 
+DEBUG = -g
+FLAGS = $(DEBUG)
 F90 = f95
+F90FLAGS = $(FLAGS) -trap=INVALID,DIVBYZERO,OVERFLOW  -B108 -YEXT_NAMES=LCS -YCFRL=1
+MOD=mod
+
 COMPILE.f90 = $(F90) $(F90FLAGS) -c $(DEBUG)
 LINK.f90 = $(F90) $(LDFLAGS)
 RANLIB = ranlib
-MOD=mod
 
-FLAGS = 
 INCLOC = 
-CFLAGS = ${INCLOC} $(FLAGS)
+FFLAGS = ${INCLOC} $(FLAGS)
 LIBLOC = 
 LDFLAGS = ${LIBLOC} $(FLAGS)
-
+LDLIBS = -lU77
 
 LIB = libts.a
 SRCS = \
@@ -39,11 +42,21 @@ clean::
 	rm -f ${LIB}
 	rm -f *.mod
 
+test: tstest
+
+tstest: tstest.o 
+	${LINK.f90} -o $@ tstest.o ${LIB} ${LDLIBS}
+
+tstest.o: ${LIB}
+
 # dependancies for individual object files
 
 time_series.o: time_series.f90 date_time_module.o
 date_time_module.o: date_time_module.f90 julian.o
 julian.o: julian.f90
+
+clean:: 
+	rm -f $(OBJS)
 
 %.o: %.f90
 	${COMPILE.f90} $<
@@ -52,10 +65,9 @@ julian.o: julian.f90
 tags: TAGS
 TAGS: $(SRCS)
 	etags $(SRCS)
-
 clean:: 
 	rm -f TAGS
 
 clean::
-	rm -f *.o *~ *% ,*
+	rm -f *~ *% ,*
 
