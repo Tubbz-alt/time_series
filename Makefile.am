@@ -33,7 +33,7 @@ date_time_module.o: date_time_module.f90 julian.o
 julian.o: julian.f90
 utility.o: utility.f90
 
-clean:
+clean-local:
 	rm -f *.$(F90MODULEEXT)
 	rm -f fort.*
 	rm -f *~

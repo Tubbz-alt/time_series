@@ -1,5 +1,6 @@
 2003-03-26  William A. Perkins  <william.perkins@pnl.gov>
 
+
 	* configure.in: created for autotools
 
 	* bootstrap.sh: created for autotools

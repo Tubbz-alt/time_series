@@ -7,7 +7,7 @@
 ! ----------------------------------------------------------------
 ! ----------------------------------------------------------------
 ! Created June  3, 1998 by William A. Perkins
-! Last Change: Mon Feb 10 08:41:14 2003 by William A. Perkins <perk@leechong.pnl.gov>
+! Last Change: Wed Mar 26 14:18:17 2003 by William A. Perkins <perk@leechong.pnl.gov>
 ! ----------------------------------------------------------------
 ! RCS ID: $Id$ Battelle PNL
 
@@ -102,40 +102,44 @@ SUBROUTINE CALCDATE(jd, m, d, y, h, mi, sec)
   INTEGER :: m, d, y, h, mi
   DOUBLE PRECISION :: sec
 
-  INTEGER(4) :: j
+  INTEGER(8) :: j,mm, dd, yy
   DOUBLE PRECISION :: tmp, frac
+  INTEGER(8), PARAMETER :: LONG = 1
 
   j = jd
-frac = jd - DBLE(j)!  + 1/(2.0*86400) ! add half of one second for rounding
-!!$  IF (frac .GE. 0.5) THEN
-!!$     frac = frac - 0.5
-!!$     j = j + 1
-!!$  ELSE
-!!$     frac = frac + 0.5
-!!$  ENDIF
+  frac = jd - DBLE(j)
+  IF (frac .GE. 0.5) THEN
+     frac = frac - 0.5
+     j = j + 1
+  ELSE
+     frac = frac + 0.5
+  ENDIF
 
   j = j - 1721119
-  y = (4 * j - 1) / 146097
-  j = 4*j - 1 - 146097*y;
-  d = j/4
-  j = (4*d + 3) /1461
-  d = 4*d + 3 - 1461*j
-  d = (d + 4)/4
-  m = (5*d - 3)/153
-  d = 5*d - 3 - 153*m
-  d = (d + 5)/5
-  y = 100*y + j
+  yy = (4 * j - 1) / 146097
+  j = 4*j - 1 - 146097*yy;
+  dd = j/4
+  j = (4*dd + 3) /1461
+  dd = 4*dd + 3 - 1461*j
+  dd = (dd + 4)/4
+  mm = (5*dd - 3)/153
+  dd = 5*dd - 3 - 153*mm
+  dd = (dd + 5)/5
+  yy = 100*yy + j
+  y = yy
+  m = mm
+  d = dd
   IF (m < 10) THEN
      m = m + 3
   ELSE
      m = m - 9
      y = y + 1
   ENDIF
-  tmp = 3600.0*(frac*24.0)
-  h = INT(tmp/3600.0)
-  tmp = tmp - h*3600.0
-  mi = INT(tmp/60.0)
-  sec = tmp - mi*60.0
+  tmp = 3600.0d0*(frac*24.0d0) + 5d-5
+  h = INT(tmp/3600.0d0)
+  tmp = tmp - DBLE(h)*3600.0d0
+  mi = INT(tmp/60.0d0)
+  sec = tmp - DBLE(mi)*60.0d0
 END SUBROUTINE CALCDATE
 
 SUBROUTINE NDYIN(jd, d, m, y)

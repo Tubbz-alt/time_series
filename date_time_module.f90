@@ -27,8 +27,8 @@ IMPLICIT NONE
 
 TYPE datetime_struct
 
-    CHARACTER (LEN=10) :: date_string
-    CHARACTER (LEN=8)    :: time_string
+    CHARACTER (LEN=20) :: date_string
+    CHARACTER (LEN=20)    :: time_string
     DOUBLE PRECISION :: time
 
 END TYPE datetime_struct
@@ -168,7 +168,7 @@ CONTAINS
           IF (time_string(i:i) .EQ. ' ') time_string(i:i) = '0'
        END DO
     ELSE 
-       WRITE(time_string, tfmt) hr, min, INT(sec)
+       WRITE(time_string, tfmt) hr, min, INT(sec) 
     END IF
 
   END SUBROUTINE decimal_to_date
