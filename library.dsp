@@ -117,7 +117,7 @@ NODEP_F90_TIME_=\
 
 !ELSEIF  "$(CFG)" == "library - Win32 Debug"
 
-DEP_F90_TIME_=\
+NODEP_F90_TIME_=\
 	".\Debug\date_time.mod"\
 	".\Debug\utility.mod"\
 	

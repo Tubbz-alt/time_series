@@ -219,7 +219,7 @@ F90_MODOUT=\
 
 
 "$(INTDIR)\time_series.obj"	"$(INTDIR)\time_series.mod" : $(SOURCE)\
- $(DEP_F90_TIME_) "$(INTDIR)" "$(INTDIR)\date_time.mod" "$(INTDIR)\utility.mod"
+ $(DEP_F90_TIME_) "$(INTDIR)" "$(INTDIR)\utility.mod" "$(INTDIR)\date_time.mod"
 	$(F90) $(F90_PROJ) $(SOURCE)
 
 
@@ -234,7 +234,7 @@ F90_MODOUT=\
 
 
 "$(INTDIR)\time_series.obj"	"$(INTDIR)\time_series.mod" : $(SOURCE)\
- $(DEP_F90_TIME_) "$(INTDIR)" "$(INTDIR)\date_time.mod" "$(INTDIR)\utility.mod"
+ $(DEP_F90_TIME_) "$(INTDIR)" "$(INTDIR)\utility.mod" "$(INTDIR)\date_time.mod"
 	$(F90) $(F90_PROJ) $(SOURCE)
 
 
