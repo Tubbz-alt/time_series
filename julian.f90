@@ -102,9 +102,9 @@ SUBROUTINE CALCDATE(jd, m, d, y, h, mi, sec)
   INTEGER :: m, d, y, h, mi
   DOUBLE PRECISION :: sec
 
-  INTEGER(8) :: j,mm, dd, yy
+  INTEGER(KIND=4) :: j,mm, dd, yy
   DOUBLE PRECISION :: tmp, frac
-  INTEGER(8), PARAMETER :: LONG = 1
+  INTEGER(KIND=4), PARAMETER :: LONG = 1
 
   j = jd
   frac = jd - DBLE(j)
