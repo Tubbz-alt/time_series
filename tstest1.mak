@@ -87,11 +87,11 @@ OutDir=.\Debug
 
 !IF "$(RECURSE)" == "0" 
 
-ALL : "$(OUTDIR)\tstest1.exe" "$(OUTDIR)\DF50.PDB"
+ALL : "$(OUTDIR)\tstest1.exe"
 
 !ELSE 
 
-ALL : "library - Win32 Debug" "$(OUTDIR)\tstest1.exe" "$(OUTDIR)\DF50.PDB"
+ALL : "library - Win32 Debug" "$(OUTDIR)\tstest1.exe"
 
 !ENDIF 
 
@@ -100,7 +100,6 @@ CLEAN :"library - Win32 DebugCLEAN"
 !ELSE 
 CLEAN :
 !ENDIF 
-	-@erase "$(INTDIR)\DF50.PDB"
 	-@erase "$(INTDIR)\tstest1.obj"
 	-@erase "$(OUTDIR)\tstest1.exe"
 	-@erase "$(OUTDIR)\tstest1.ilk"
@@ -131,6 +130,8 @@ LINK32_OBJS= \
 
 !ENDIF 
 
+.SUFFIXES: .fpp
+
 .for{$(F90_OBJS)}.obj:
    $(F90) $(F90_PROJ) $<  
 
@@ -151,12 +152,12 @@ LINK32_OBJS= \
 
 "library - Win32 Release" : 
    cd "."
-   $(MAKE) /$(MAKEFLAGS) /F .\library.mak CFG="library - Win32 Release" 
+   $(MAKE) /$(MAKEFLAGS) /F ".\library.mak" CFG="library - Win32 Release" 
    cd "."
 
 "library - Win32 ReleaseCLEAN" : 
    cd "."
-   $(MAKE) /$(MAKEFLAGS) CLEAN /F .\library.mak CFG="library - Win32 Release"\
+   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\library.mak" CFG="library - Win32 Release"\
  RECURSE=1 
    cd "."
 
@@ -164,12 +165,12 @@ LINK32_OBJS= \
 
 "library - Win32 Debug" : 
    cd "."
-   $(MAKE) /$(MAKEFLAGS) /F .\library.mak CFG="library - Win32 Debug" 
+   $(MAKE) /$(MAKEFLAGS) /F ".\library.mak" CFG="library - Win32 Debug" 
    cd "."
 
 "library - Win32 DebugCLEAN" : 
    cd "."
-   $(MAKE) /$(MAKEFLAGS) CLEAN /F .\library.mak CFG="library - Win32 Debug"\
+   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\library.mak" CFG="library - Win32 Debug"\
  RECURSE=1 
    cd "."
 

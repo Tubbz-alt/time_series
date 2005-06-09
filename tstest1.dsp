@@ -85,13 +85,13 @@ SOURCE=.\tstest1.f90
 
 !IF  "$(CFG)" == "tstest1 - Win32 Release"
 
-DEP_F90_TSTES=\
+NODEP_F90_TSTES=\
 	".\Release\time_series.mod"\
 	
 
 !ELSEIF  "$(CFG)" == "tstest1 - Win32 Debug"
 
-DEP_F90_TSTES=\
+NODEP_F90_TSTES=\
 	".\Debug\time_series.mod"\
 	
 

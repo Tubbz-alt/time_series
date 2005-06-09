@@ -38,17 +38,21 @@ OutDir=.
 
 !IF "$(RECURSE)" == "0" 
 
-ALL : "$(OUTDIR)\libts.lib" "$(OUTDIR)\Release\time_series.mod"
+ALL : "$(OUTDIR)\libts.lib" "$(OUTDIR)\Release\time_series.mod"\
+ "$(OUTDIR)\Release\fptrap.mod"
 
 !ELSE 
 
-ALL : "$(OUTDIR)\libts.lib" "$(OUTDIR)\Release\time_series.mod"
+ALL : "$(OUTDIR)\libts.lib" "$(OUTDIR)\Release\time_series.mod"\
+ "$(OUTDIR)\Release\fptrap.mod"
 
 !ENDIF 
 
 CLEAN :
 	-@erase "$(INTDIR)\date_time.mod"
 	-@erase "$(INTDIR)\date_time_module.obj"
+	-@erase "$(INTDIR)\fptrap-win32.obj"
+	-@erase "$(INTDIR)\fptrap.mod"
 	-@erase "$(INTDIR)\julian.mod"
 	-@erase "$(INTDIR)\julian.obj"
 	-@erase "$(INTDIR)\time_series.mod"
@@ -60,8 +64,8 @@ CLEAN :
 "$(INTDIR)" :
     if not exist "$(INTDIR)/$(NULL)" mkdir "$(INTDIR)"
 
-F90_PROJ=/include:"$(INTDIR)\\" /compile_only /nologo /warn:nofileopt\
- /module:"Release/" /object:"Release/" 
+F90_PROJ=/include:"$(INTDIR)\\" /compile_only /nologo /optimize:3\
+ /warn:nofileopt /module:"Release/" /object:"Release/" 
 F90_OBJS=.\Release/
 BSC32=bscmake.exe
 BSC32_FLAGS=/nologo /o"$(OUTDIR)\library.bsc" 
@@ -71,6 +75,7 @@ LIB32=link.exe -lib
 LIB32_FLAGS=/nologo /out:"$(OUTDIR)\libts.lib" 
 LIB32_OBJS= \
 	"$(INTDIR)\date_time_module.obj" \
+	"$(INTDIR)\fptrap-win32.obj" \
 	"$(INTDIR)\julian.obj" \
 	"$(INTDIR)\time_series.obj" \
 	"$(INTDIR)\utility.obj"
@@ -90,18 +95,19 @@ OutDir=.\Debug
 
 !IF "$(RECURSE)" == "0" 
 
-ALL : ".\libts.lib" "$(OUTDIR)\DF50.PDB" "$(OUTDIR)\time_series.mod"
+ALL : ".\libts.lib" "$(OUTDIR)\time_series.mod" "$(OUTDIR)\fptrap.mod"
 
 !ELSE 
 
-ALL : ".\libts.lib" "$(OUTDIR)\DF50.PDB" "$(OUTDIR)\time_series.mod"
+ALL : ".\libts.lib" "$(OUTDIR)\time_series.mod" "$(OUTDIR)\fptrap.mod"
 
 !ENDIF 
 
 CLEAN :
 	-@erase "$(INTDIR)\date_time.mod"
 	-@erase "$(INTDIR)\date_time_module.obj"
-	-@erase "$(INTDIR)\DF50.PDB"
+	-@erase "$(INTDIR)\fptrap-win32.obj"
+	-@erase "$(INTDIR)\fptrap.mod"
 	-@erase "$(INTDIR)\JULIAN.mod"
 	-@erase "$(INTDIR)\julian.obj"
 	-@erase "$(INTDIR)\time_series.mod"
@@ -124,6 +130,7 @@ LIB32=link.exe -lib
 LIB32_FLAGS=/nologo /out:"libts.lib" 
 LIB32_OBJS= \
 	"$(INTDIR)\date_time_module.obj" \
+	"$(INTDIR)\fptrap-win32.obj" \
 	"$(INTDIR)\julian.obj" \
 	"$(INTDIR)\time_series.obj" \
 	"$(INTDIR)\utility.obj"
@@ -134,6 +141,8 @@ LIB32_OBJS= \
 <<
 
 !ENDIF 
+
+.SUFFIXES: .fpp
 
 .for{$(F90_OBJS)}.obj:
    $(F90) $(F90_PROJ) $<  
@@ -177,6 +186,38 @@ F90_MODOUT=\
 
 "$(INTDIR)\date_time_module.obj"	"$(INTDIR)\date_time.mod" : $(SOURCE)\
  $(DEP_F90_DATE_) "$(INTDIR)" "$(INTDIR)\JULIAN.mod"
+	$(F90) $(F90_PROJ) $(SOURCE)
+
+
+!ENDIF 
+
+SOURCE=".\fptrap-win32.f90"
+
+!IF  "$(CFG)" == "library - Win32 Release"
+
+DEP_F90_FPTRA=\
+	".\Release\utility.mod"\
+	
+F90_MODOUT=\
+	"fptrap"
+
+
+"$(INTDIR)\fptrap-win32.obj"	"$(INTDIR)\fptrap.mod" : $(SOURCE)\
+ $(DEP_F90_FPTRA) "$(INTDIR)" "$(INTDIR)\utility.mod"
+	$(F90) $(F90_PROJ) $(SOURCE)
+
+
+!ELSEIF  "$(CFG)" == "library - Win32 Debug"
+
+DEP_F90_FPTRA=\
+	".\Debug\utility.mod"\
+	
+F90_MODOUT=\
+	"fptrap"
+
+
+"$(INTDIR)\fptrap-win32.obj"	"$(INTDIR)\fptrap.mod" : $(SOURCE)\
+ $(DEP_F90_FPTRA) "$(INTDIR)" "$(INTDIR)\utility.mod"
 	$(F90) $(F90_PROJ) $(SOURCE)
 
 
@@ -234,7 +275,7 @@ F90_MODOUT=\
 
 
 "$(INTDIR)\time_series.obj"	"$(INTDIR)\time_series.mod" : $(SOURCE)\
- $(DEP_F90_TIME_) "$(INTDIR)" "$(INTDIR)\utility.mod" "$(INTDIR)\date_time.mod"
+ $(DEP_F90_TIME_) "$(INTDIR)" "$(INTDIR)\date_time.mod" "$(INTDIR)\utility.mod"
 	$(F90) $(F90_PROJ) $(SOURCE)
 
 

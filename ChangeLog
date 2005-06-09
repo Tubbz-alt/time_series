@@ -1,3 +1,44 @@
+2004-04-14  William A. Perkins  <william.perkins@pnl.gov>
+
+	* acinclude.m4 (AC_PROG_F90_FLAGS): select an fptrap module based
+	on the compiler
+
+	* Makefile.am (libts_a_LIBADD): include the fptrap module in
+	library 
+
+	* fptraptest.f90: floating point exception trap test
+
+	* fptrap-intel.f90: fptrap_common specific to the Intel compiler
+
+	* fptrap-null.f90: An empty module with the fptrap_common
+	subroutine. 
+
+2004-04-02  William A. Perkins  <william.perkins@pnl.gov>
+
+	* configure.in: compiler command line options are now in
+	acinclude.m4; they don't need to be here
+
+	* acinclude.m4 (AC_PROG_F90): put the --with-f90 option in this
+	macro 
+	(AAC_PROG_F90_FLAGS): put the f90 options in this macro
+
+2003-07-21  William A. Perkins  <william.perkins@pnl.gov>
+
+	* utility.f90 (open_existing): provide an optional fatal (default
+	is .TRUE.) argument
+
+2003-07-17  William A. Perkins  <william.perkins@pnl.gov>
+
+	* utility.f90: be more descriptive about the error in
+	open_existing. 
+
+2003-06-10  William A. Perkins  <william.perkins@pnl.gov>
+
+	* configure.in: moved all options for the F90 compiler to the
+	AC_PROG_F90 macro in acinclude.m4
+
+	* acinclude.m4: AC_PROG_F90 now contains the options
+
 2003-05-14  William A. Perkins  <william.perkins@pnl.gov>
 
 	* tstest3.f90: test of increasing and one point time series

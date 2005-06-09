@@ -39,7 +39,7 @@ F90=df.exe
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
 # ADD BASE F90 /include:"Release/" /compile_only /nologo /warn:nofileopt
-# ADD F90 /include:"Release/" /compile_only /nologo /warn:nofileopt
+# ADD F90 /include:"Release/" /compile_only /nologo /optimize:3 /warn:nofileopt
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -80,18 +80,25 @@ SOURCE=.\date_time_module.f90
 
 !IF  "$(CFG)" == "library - Win32 Release"
 
-NODEP_F90_DATE_=\
+DEP_F90_DATE_=\
 	".\Release\julian.mod"\
 	
 
 !ELSEIF  "$(CFG)" == "library - Win32 Debug"
 
-NODEP_F90_DATE_=\
+DEP_F90_DATE_=\
 	".\Debug\JULIAN.mod"\
 	
 
 !ENDIF 
 
+F90_MODOUT=\
+	"date_time"
+
+# End Source File
+# Begin Source File
+
+SOURCE=".\fptrap-win32.f90"
 # End Source File
 # Begin Source File
 
@@ -103,6 +110,9 @@ SOURCE=.\julian.f90
 
 !ENDIF 
 
+F90_MODOUT=\
+	"julian"
+
 # End Source File
 # Begin Source File
 
@@ -110,19 +120,22 @@ SOURCE=.\time_series.f90
 
 !IF  "$(CFG)" == "library - Win32 Release"
 
-NODEP_F90_TIME_=\
+DEP_F90_TIME_=\
 	".\Release\date_time.mod"\
 	".\Release\utility.mod"\
 	
 
 !ELSEIF  "$(CFG)" == "library - Win32 Debug"
 
-NODEP_F90_TIME_=\
+DEP_F90_TIME_=\
 	".\Debug\date_time.mod"\
 	".\Debug\utility.mod"\
 	
 
 !ENDIF 
+
+F90_MODOUT=\
+	"time_series"
 
 # End Source File
 # Begin Source File
@@ -134,6 +147,9 @@ SOURCE=.\utility.f90
 !ELSEIF  "$(CFG)" == "library - Win32 Debug"
 
 !ENDIF 
+
+F90_MODOUT=\
+	"utility"
 
 # End Source File
 # End Target

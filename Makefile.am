@@ -1,3 +1,5 @@
+AM_FFLAGS = $(FCFLAGS)
+
 EXTRA_DIST = \
 	README \
 	Makefile.noauto
@@ -11,12 +13,16 @@ libts_a_SOURCES = \
 	date_time_module.f90 \
 	utility.f90
 
+libts_a_LIBADD = @F90TRAPOBJ@
+libts_a_DEPENDENCIES = @F90TRAPOBJ@
+
 check_PROGRAMS = \
 	datetest1 \
 	datetest2 \
 	tstest1 \
 	tstest2 \
-	tstest3
+	tstest3 \
+	fptraptest
 
 datetest1_SOURCES = datetest1.f90
 datetest1_LDADD = libts.a 
@@ -28,6 +34,8 @@ tstest2_SOURCES = tstest2.f90
 tstest2_LDADD = libts.a
 tstest3_SOURCES = tstest3.f90
 tstest3_LDADD = libts.a
+fptraptest_SOURCES = fptraptest.f90
+fptraptest_LDADD = libts.a
 
 # dependancies for individual object files
 
@@ -39,6 +47,8 @@ time_series.o: time_series.f90 date_time_module.o utility.o
 date_time_module.o: date_time_module.f90 julian.o
 julian.o: julian.f90
 utility.o: utility.f90
+fptrap-null.o: fptrap-null.f90 utility.o
+fptrap-intel.o: fptrap-intel.f90 utility.o
 
 clean-local:
 	rm -f *.$(F90MODULEEXT)

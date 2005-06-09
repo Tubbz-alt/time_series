@@ -7,7 +7,7 @@
 ! ----------------------------------------------------------------
 ! ----------------------------------------------------------------
 ! Created October 21, 2002 by William A. Perkins
-! Last Change: Tue Apr 15 09:58:38 2003 by William A. Perkins <perk@leechong.pnl.gov>
+! Last Change: Fri Feb  6 08:40:49 2004 by William A. Perkins <perk@leechong.pnl.gov>
 ! ----------------------------------------------------------------
 
 ! ----------------------------------------------------------------
@@ -68,26 +68,39 @@ CONTAINS
   ! ----------------------------------------------------------------
   ! SUBROUTINE open_existing
   ! ----------------------------------------------------------------
-  SUBROUTINE open_existing(fname, iunit)
+  SUBROUTINE open_existing(fname, iunit, fatal, result)
 
     IMPLICIT NONE
 
     CHARACTER (LEN=*), INTENT(IN) :: fname
     INTEGER, INTENT(IN) :: iunit
+    LOGICAL, INTENT(IN), OPTIONAL :: fatal
+    LOGICAL, INTENT(OUT), OPTIONAL :: result
 
-    LOGICAL :: file_exist
+    LOGICAL :: file_exist, myfatal = .TRUE., myresult = .FALSE.
     INTEGER :: status
 
-    INQUIRE(FILE=fname, EXIST=file_exist)
+    CHARACTER (LEN=1024) :: msg
 
+    file_exist = .TRUE.
+
+    IF (PRESENT(fatal)) myfatal = fatal
+
+    INQUIRE(FILE=TRIM(fname), EXIST=file_exist)
     IF(file_exist)THEN
        OPEN(iunit, file=fname, action='READ', iostat=status)
        IF (status .EQ. 0) THEN
           CALL status_message('Opened ' // TRIM(fname) // ' for reading')
+          IF (PRESENT(result)) result = .TRUE.
           RETURN
        END IF
+       WRITE(msg, *) TRIM(fname), ': cannot open for reading: ', status
+       CALL error_message(msg, fatal=myfatal)
+    ELSE
+       WRITE(msg, *) TRIM(fname), ': cannot open for reading: file does not exist'
+       CALL error_message(msg, fatal=myfatal)
     ENDIF
-    CALL error_message(TRIM(fname) // ': cannot open for reading', fatal=.TRUE.)
+    IF (PRESENT(result)) result = .FALSE.
   END SUBROUTINE open_existing
 
   ! ----------------------------------------------------------------
