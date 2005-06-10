@@ -7,7 +7,7 @@
 ! ----------------------------------------------------------------
 ! ----------------------------------------------------------------
 ! Created October 21, 2002 by William A. Perkins
-! Last Change: Fri Feb  6 08:40:49 2004 by William A. Perkins <perk@leechong.pnl.gov>
+! Last Change: Fri Jun 10 15:46:28 2005 by William A. Perkins <perk@McPerk.pnl.gov>
 ! ----------------------------------------------------------------
 
 ! ----------------------------------------------------------------
@@ -19,7 +19,7 @@ MODULE utility
 
   CHARACTER (LEN=80), PRIVATE, SAVE :: rcsid = "$Id$"
 
-  INTEGER, PARAMETER, PUBLIC :: utility_error_iounit=13, utility_status_iounit=14
+  INTEGER, PUBLIC :: utility_error_iounit=13, utility_status_iounit=14
 
 CONTAINS 
 

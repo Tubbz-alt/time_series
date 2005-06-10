@@ -1,3 +1,7 @@
+2005-06-10  William A. Perkins  <william.perkins@pnl.gov>
+
+	* utility.f90 (utility): make error and status unit numbers public
+
 2004-04-14  William A. Perkins  <william.perkins@pnl.gov>
 
 	* acinclude.m4 (AC_PROG_F90_FLAGS): select an fptrap module based
