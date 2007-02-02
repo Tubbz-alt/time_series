@@ -96,6 +96,21 @@ F90OPTIMIZE="-O"
 F90TRAPOBJ="fptrap-null.o"
 
 case $host in
+    i?64*linux*)
+        case $FC in
+                                #  The Intel compiler (64-bit)
+            efc)
+                F90FLAGS="$F90FLAGS -static -Vaxlib -w"
+                F90LDFLAGS=""
+                F90LIBS="-lPEPCF90"
+                F90MODULEEXT=mod
+                F90OPTIMIZE="-O3"
+                F90PROFILE="-p"
+                ;;
+            *)
+                AC_MSG_WARN(Fortran 90 Compiler ($FC) Unknown on $host)
+        esac
+        ;;
     i?86*linux*)
         case $FC in
                                 # The Absoft compiler

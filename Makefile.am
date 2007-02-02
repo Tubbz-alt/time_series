@@ -2,7 +2,12 @@ AM_FFLAGS = $(FCFLAGS)
 
 EXTRA_DIST = \
 	README \
-	Makefile.noauto
+	Makefile.noauto \
+	fptrap-intel.f90 \
+	fptraptest.f90 \
+    fptrap-null.f90  \
+	fptraptest.dsp \
+	fptrap-win32.f90
 
 
 lib_LIBRARIES = libts.a
