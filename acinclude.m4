@@ -19,6 +19,9 @@ if test -z "$FC"; then
         i?86*linux*)
             ac_f90_compilers="f95 ifc lf95 f90"
             ;;
+        x86_64*linux*)
+            ac_f90_compilers="f95 f90 ifc g95 gfortran"
+            ;;
         alpha*linux*|alphaev*-dec-osf*)
             ac_f90_compilers="f90 f95 fort"
             ;;
@@ -140,6 +143,40 @@ case $host in
                 F90LIBS=""
                 F90MODULEEXT=mod
                 F90PROFILE=""
+                ;;
+            *)
+                AC_MSG_WARN(Fortran 90 Compiler ($FC) Unknown on $host)
+        esac
+        ;;
+    x86_64*linux*)
+        case $FC in
+                                # The Absoft compiler
+            f95|f90)
+                F90FLAGS="$F90FLAGS -trap=INVALID,DIVBYZERO,OVERFLOW  -YEXT_SFX=_ -YEXT_NAMES=LCS -YCFRL=1"
+                F90LDFLAGS=""
+                F90LIBS="-lU77"
+                F90MODULEEXT=mod
+                F90DEBUG="-g"
+                F90PROFILE="-g -P"
+                F90MODPATH="-p"
+                ;;
+            ifc)
+                F90FLAGS="$F90FLAGS -static -Vaxlib -w"
+                F90LDFLAGS=""
+                F90LIBS="-lPEPCF90"
+                F90MODULEEXT=mod
+                F90OPTIMIZE="-O3"
+                F90PROFILE="-p"
+                F90TRAPOBJ="fptrap-intel.o"
+                ;;
+            g95|gfortran)
+                F90FLAGS="$F90FLAGS -fno-second-underscore"
+                F90LDFLAGS=""
+                F90LIBS=""
+                F90MODULEEXT=mod
+                F90DEBUG="-g"
+                F90PROFILE="-g -P"
+                F90MODPATH="-I"
                 ;;
             *)
                 AC_MSG_WARN(Fortran 90 Compiler ($FC) Unknown on $host)
