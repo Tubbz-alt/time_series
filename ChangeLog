@@ -1,3 +1,8 @@
+2007-02-06  William A. Perkins  <william.perkins@pnl.gov>
+
+	* utility.f90 (utility): error and status unit number need to be
+	changeable 
+
 2007-02-02  William A. Perkins  <william.perkins@pnl.gov>
 
 	* acinclude.m4: adjust Fortran compilers and flags for x86_64
