@@ -1,3 +1,7 @@
+2008-10-17  William A. Perkins  <william.perkins@pnl.gov>
+
+	* acinclude.m4: include "ifort" as name for Intel compiler
+
 2007-02-06  William A. Perkins  <william.perkins@pnl.gov>
 
 	* utility.f90 (utility): error and status unit number need to be

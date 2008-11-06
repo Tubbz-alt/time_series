@@ -17,10 +17,10 @@ if test -z "$FC"; then
     AC_MSG_CHECKING(Building Fortran 90 compiler list for $host)
     case $host in
         i?86*linux*)
-            ac_f90_compilers="f95 ifc lf95 f90"
+            ac_f90_compilers="f95 ifc ifort lf95 f90"
             ;;
         x86_64*linux*)
-            ac_f90_compilers="f95 f90 ifc g95 gfortran"
+            ac_f90_compilers="f95 f90 ifc ifort g95 gfortran"
             ;;
         alpha*linux*|alphaev*-dec-osf*)
             ac_f90_compilers="f90 f95 fort"
@@ -127,10 +127,10 @@ case $host in
                 F90MODPATH="-p"
                 ;;
                                 #  The Intel compiler
-            ifc)
+            ifc|ifort)
                 F90FLAGS="$F90FLAGS -static -Vaxlib -w"
                 F90LDFLAGS=""
-                F90LIBS="-lPEPCF90"
+                F90LIBS=""
                 F90MODULEEXT=mod
                 F90OPTIMIZE="-O3"
                 F90PROFILE="-p"
@@ -160,10 +160,10 @@ case $host in
                 F90PROFILE="-g -P"
                 F90MODPATH="-p"
                 ;;
-            ifc)
+            ifc|ifort)
                 F90FLAGS="$F90FLAGS -static -Vaxlib -w"
                 F90LDFLAGS=""
-                F90LIBS="-lPEPCF90"
+                F90LIBS=""
                 F90MODULEEXT=mod
                 F90OPTIMIZE="-O3"
                 F90PROFILE="-p"
