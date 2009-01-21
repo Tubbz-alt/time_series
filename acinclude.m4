@@ -22,6 +22,9 @@ if test -z "$FC"; then
         x86_64*linux*)
             ac_f90_compilers="f95 f90 ifc ifort g95 gfortran"
             ;;
+        ia64*linux*)
+            ac_f90_compilers="ifc ifort gfortran"
+	    ;;
         alpha*linux*|alphaev*-dec-osf*)
             ac_f90_compilers="f90 f95 fort"
             ;;
@@ -102,10 +105,10 @@ case $host in
     i?64*linux*)
         case $FC in
                                 #  The Intel compiler (64-bit)
-            efc)
+            efc|ifc|ifort)
                 F90FLAGS="$F90FLAGS -static -Vaxlib -w"
                 F90LDFLAGS=""
-                F90LIBS="-lPEPCF90"
+                F90LIBS=""
                 F90MODULEEXT=mod
                 F90OPTIMIZE="-O3"
                 F90PROFILE="-p"
