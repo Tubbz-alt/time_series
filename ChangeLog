@@ -1,3 +1,7 @@
+2010-12-17  William A. Perkins  <william.perkins@pnl.gov>
+
+	* configure.in: need to do AC_PROG_FC() before AC_PROG_F90()
+
 2009-01-21  William Perkins  <d3g096@turbulent.pnl.gov>
 
 	* acinclude.m4: recognize ia64 linux machines
