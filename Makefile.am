@@ -44,16 +44,16 @@ fptraptest_LDADD = libts.a
 
 # dependancies for individual object files
 
-tstest1.o: tstest1.f90 time_series.o
-tstest2.o: tstest2.f90 time_series.o
-tstest3.o: tstest3.f90 time_series.o
-datetime1.o: datetime1.f90 date_time_module.o utility.o
-time_series.o: time_series.f90 date_time_module.o utility.o
-date_time_module.o: date_time_module.f90 julian.o
-julian.o: julian.f90
-utility.o: utility.f90
-fptrap-null.o: fptrap-null.f90 utility.o
-fptrap-intel.o: fptrap-intel.f90 utility.o
+tstest1.$(OBJEXT): tstest1.f90 time_series.$(OBJEXT)
+tstest2.$(OBJEXT): tstest2.f90 time_series.$(OBJEXT)
+tstest3.$(OBJEXT): tstest3.f90 time_series.$(OBJEXT)
+datetime1.$(OBJEXT): datetime1.f90 date_time_module.$(OBJEXT) utility.$(OBJEXT)
+time_series.$(OBJEXT): time_series.f90 date_time_module.$(OBJEXT) utility.$(OBJEXT)
+date_time_module.$(OBJEXT): date_time_module.f90 julian.$(OBJEXT)
+julian.$(OBJEXT): julian.f90
+utility.$(OBJEXT): utility.f90
+fptrap-null.$(OBJEXT): fptrap-null.f90 utility.$(OBJEXT)
+fptrap-intel.$(OBJEXT): fptrap-intel.f90 utility.$(OBJEXT)
 
 clean-local:
 	rm -f *.$(F90MODULEEXT)
