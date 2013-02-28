@@ -52,7 +52,7 @@ build_triplet = @build@
 host_triplet = @host@
 check_PROGRAMS = datetest1$(EXEEXT) datetest2$(EXEEXT) \
 	tstest1$(EXEEXT) tstest2$(EXEEXT) tstest3$(EXEEXT) \
-	fptraptest$(EXEEXT)
+	cumtstest1$(EXEEXT) fptraptest$(EXEEXT)
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) ChangeLog README \
@@ -104,9 +104,13 @@ am__v_AR_ = $(am__v_AR_@AM_DEFAULT_V@)
 am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
 libts_a_AR = $(AR) $(ARFLAGS)
-am_libts_a_OBJECTS = time_series.$(OBJEXT) julian.$(OBJEXT) \
+am_libts_a_OBJECTS = time_series.$(OBJEXT) \
+	cumulative_time_series.$(OBJEXT) julian.$(OBJEXT) \
 	date_time_module.$(OBJEXT) utility.$(OBJEXT)
 libts_a_OBJECTS = $(am_libts_a_OBJECTS)
+am_cumtstest1_OBJECTS = cumtstest1.$(OBJEXT)
+cumtstest1_OBJECTS = $(am_cumtstest1_OBJECTS)
+cumtstest1_DEPENDENCIES = libts.a
 am_datetest1_OBJECTS = datetest1.$(OBJEXT)
 datetest1_OBJECTS = $(am_datetest1_OBJECTS)
 datetest1_DEPENDENCIES = libts.a
@@ -150,12 +154,14 @@ AM_V_FCLD = $(am__v_FCLD_@AM_V@)
 am__v_FCLD_ = $(am__v_FCLD_@AM_DEFAULT_V@)
 am__v_FCLD_0 = @echo "  FCLD    " $@;
 am__v_FCLD_1 = 
-SOURCES = $(libts_a_SOURCES) $(datetest1_SOURCES) $(datetest2_SOURCES) \
+SOURCES = $(libts_a_SOURCES) $(cumtstest1_SOURCES) \
+	$(datetest1_SOURCES) $(datetest2_SOURCES) \
 	$(fptraptest_SOURCES) $(tstest1_SOURCES) $(tstest2_SOURCES) \
 	$(tstest3_SOURCES)
-DIST_SOURCES = $(libts_a_SOURCES) $(datetest1_SOURCES) \
-	$(datetest2_SOURCES) $(fptraptest_SOURCES) $(tstest1_SOURCES) \
-	$(tstest2_SOURCES) $(tstest3_SOURCES)
+DIST_SOURCES = $(libts_a_SOURCES) $(cumtstest1_SOURCES) \
+	$(datetest1_SOURCES) $(datetest2_SOURCES) \
+	$(fptraptest_SOURCES) $(tstest1_SOURCES) $(tstest2_SOURCES) \
+	$(tstest3_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -313,6 +319,7 @@ EXTRA_DIST = \
 lib_LIBRARIES = libts.a
 libts_a_SOURCES = \
 	time_series.f90 \
+	cumulative_time_series.f90 \
 	julian.f90 \
 	date_time_module.f90 \
 	utility.f90
@@ -329,6 +336,8 @@ tstest2_SOURCES = tstest2.f90
 tstest2_LDADD = libts.a
 tstest3_SOURCES = tstest3.f90
 tstest3_LDADD = libts.a
+cumtstest1_SOURCES = cumtstest1.f90
+cumtstest1_LDADD = libts.a
 fptraptest_SOURCES = fptraptest.f90
 fptraptest_LDADD = libts.a
 all: all-am
@@ -407,6 +416,9 @@ libts.a: $(libts_a_OBJECTS) $(libts_a_DEPENDENCIES) $(EXTRA_libts_a_DEPENDENCIES
 
 clean-checkPROGRAMS:
 	-test -z "$(check_PROGRAMS)" || rm -f $(check_PROGRAMS)
+cumtstest1$(EXEEXT): $(cumtstest1_OBJECTS) $(cumtstest1_DEPENDENCIES) $(EXTRA_cumtstest1_DEPENDENCIES) 
+	@rm -f cumtstest1$(EXEEXT)
+	$(AM_V_FCLD)$(FCLINK) $(cumtstest1_OBJECTS) $(cumtstest1_LDADD) $(LIBS)
 datetest1$(EXEEXT): $(datetest1_OBJECTS) $(datetest1_DEPENDENCIES) $(EXTRA_datetest1_DEPENDENCIES) 
 	@rm -f datetest1$(EXEEXT)
 	$(AM_V_FCLD)$(FCLINK) $(datetest1_OBJECTS) $(datetest1_LDADD) $(LIBS)
@@ -789,6 +801,7 @@ tstest2.$(OBJEXT): tstest2.f90 time_series.$(OBJEXT)
 tstest3.$(OBJEXT): tstest3.f90 time_series.$(OBJEXT)
 datetime1.$(OBJEXT): datetime1.f90 date_time_module.$(OBJEXT) utility.$(OBJEXT)
 time_series.$(OBJEXT): time_series.f90 date_time_module.$(OBJEXT) utility.$(OBJEXT)
+cumulative_time_series.$(OBJEXT): cumulative_time_series.f90 time_series.$(OBJEXT)
 date_time_module.$(OBJEXT): date_time_module.f90 julian.$(OBJEXT)
 julian.$(OBJEXT): julian.f90
 utility.$(OBJEXT): utility.f90

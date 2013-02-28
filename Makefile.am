@@ -14,6 +14,7 @@ lib_LIBRARIES = libts.a
 
 libts_a_SOURCES = \
 	time_series.f90 \
+	cumulative_time_series.f90 \
 	julian.f90 \
 	date_time_module.f90 \
 	utility.f90
@@ -27,6 +28,7 @@ check_PROGRAMS = \
 	tstest1 \
 	tstest2 \
 	tstest3 \
+	cumtstest1 \
 	fptraptest
 
 datetest1_SOURCES = datetest1.f90
@@ -39,6 +41,8 @@ tstest2_SOURCES = tstest2.f90
 tstest2_LDADD = libts.a
 tstest3_SOURCES = tstest3.f90
 tstest3_LDADD = libts.a
+cumtstest1_SOURCES = cumtstest1.f90
+cumtstest1_LDADD = libts.a
 fptraptest_SOURCES = fptraptest.f90
 fptraptest_LDADD = libts.a
 
@@ -49,6 +53,7 @@ tstest2.$(OBJEXT): tstest2.f90 time_series.$(OBJEXT)
 tstest3.$(OBJEXT): tstest3.f90 time_series.$(OBJEXT)
 datetime1.$(OBJEXT): datetime1.f90 date_time_module.$(OBJEXT) utility.$(OBJEXT)
 time_series.$(OBJEXT): time_series.f90 date_time_module.$(OBJEXT) utility.$(OBJEXT)
+cumulative_time_series.$(OBJEXT): cumulative_time_series.f90 time_series.$(OBJEXT)
 date_time_module.$(OBJEXT): date_time_module.f90 julian.$(OBJEXT)
 julian.$(OBJEXT): julian.f90
 utility.$(OBJEXT): utility.f90
