@@ -1,3 +1,12 @@
+2013-03-01  William A. Perkins  <william.perkins@pnnl.gov>
+
+	* Makefile.am (libts_a_SOURCES): add met_time_series.f90
+
+	* mettest1.f90 (mettest1): add met time series test 
+
+	* met_time_series.f90 (met_time_series): add met-specific time
+	series 
+
 2013-02-28  William A. Perkins  <william.perkins@pnnl.gov>
 
 	* cumtstest1.f90 (cumtstest): add cumulative time series test
