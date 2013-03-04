@@ -16,6 +16,7 @@ libts_a_SOURCES = \
 	time_series.f90 \
 	cumulative_time_series.f90 \
 	met_time_series.f90 \
+	const_series.f90 \
 	julian.f90 \
 	date_time_module.f90 \
 	utility.f90

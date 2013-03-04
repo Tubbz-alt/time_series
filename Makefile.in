@@ -106,7 +106,8 @@ am__v_AR_1 =
 libts_a_AR = $(AR) $(ARFLAGS)
 am_libts_a_OBJECTS = time_series.$(OBJEXT) \
 	cumulative_time_series.$(OBJEXT) met_time_series.$(OBJEXT) \
-	julian.$(OBJEXT) date_time_module.$(OBJEXT) utility.$(OBJEXT)
+	const_series.$(OBJEXT) julian.$(OBJEXT) \
+	date_time_module.$(OBJEXT) utility.$(OBJEXT)
 libts_a_OBJECTS = $(am_libts_a_OBJECTS)
 am_cumtstest1_OBJECTS = cumtstest1.$(OBJEXT)
 cumtstest1_OBJECTS = $(am_cumtstest1_OBJECTS)
@@ -324,6 +325,7 @@ libts_a_SOURCES = \
 	time_series.f90 \
 	cumulative_time_series.f90 \
 	met_time_series.f90 \
+	const_series.f90 \
 	julian.f90 \
 	date_time_module.f90 \
 	utility.f90
