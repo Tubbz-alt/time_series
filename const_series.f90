@@ -85,7 +85,7 @@ CONTAINS
 
     IMPLICIT NONE
 
-    TYPE (const_series_rec), POINTER, INTENT(INOUT) :: cts
+    TYPE (const_series_rec), POINTER :: cts
 
     IF (.NOT. ASSOCIATED(cts)) RETURN
     CALL time_series_destroy(cts%ts)

@@ -62,7 +62,7 @@ CONTAINS
 
     IMPLICIT NONE
 
-    TYPE (met_time_series_rec), POINTER, INTENT(INOUT) :: metts
+    TYPE (met_time_series_rec), POINTER :: metts
 
     IF (.NOT. ASSOCIATED(metts)) RETURN
 

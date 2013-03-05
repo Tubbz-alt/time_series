@@ -1,3 +1,11 @@
+2013-03-05  William A. Perkins  <william.perkins@pnnl.gov>
+
+	* const_series.f90 (const_series_destroy): apparently
+	declaring the pointer INOUT causes problems here
+
+	* met_time_series.f90 (met_time_series_destroy): apparently
+	declaring the pointer INOUT causes problems here
+
 2013-03-04  William A. Perkins  <william.perkins@pnnl.gov>
 
 	* Makefile.am (libts_a_SOURCES): add const_series.f90
