@@ -7,7 +7,7 @@
 ! ----------------------------------------------------------------
 ! ----------------------------------------------------------------
 ! Created March  1, 2013 by William A. Perkins
-! Last Change: Thu Jun  3 06:45:08 2010 by William A. Perkins <d3g096@PE10900.pnl.gov>
+! Last Change: 2013-11-06 10:52:10 d3g096
 ! ----------------------------------------------------------------
 
 ! ----------------------------------------------------------------
@@ -80,7 +80,7 @@ CONTAINS
 
     IMPLICIT NONE
 
-    TYPE (met_time_series_rec), POINTER, INTENT(INOUT) :: metts
+    TYPE (met_time_series_rec), POINTER :: metts
     DOUBLE PRECISION, INTENT(IN) :: datetime
 
     CALL time_series_interp(metts%ts, datetime)

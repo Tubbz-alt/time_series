@@ -7,7 +7,7 @@
 ! ----------------------------------------------------------------
 ! ----------------------------------------------------------------
 ! Created February 28, 2013 by William A. Perkins
-! Last Change: Thu Jun  3 06:45:08 2010 by William A. Perkins <d3g096@PE10900.pnl.gov>
+! Last Change: 2013-11-06 10:49:45 d3g096
 ! ----------------------------------------------------------------
   
 ! RCS ID: $Id$ Battelle PNL
@@ -65,7 +65,7 @@ CONTAINS
 
     IMPLICIT NONE
 
-    TYPE (cumulative_time_series_rec), POINTER, INTENT(INOUT) :: cumts
+    TYPE (cumulative_time_series_rec), POINTER :: cumts
 
     IF (.NOT. ASSOCIATED(cumts)) RETURN
 

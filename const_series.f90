@@ -7,7 +7,7 @@
   ! ----------------------------------------------------------------
   ! ----------------------------------------------------------------
   ! Created March  4, 2013 by William A. Perkins
-  ! Last Change: Thu Jun  3 06:45:08 2010 by William A. Perkins <d3g096@PE10900.pnl.gov>
+  ! Last Change: 2013-11-06 10:52:30 d3g096
   ! ----------------------------------------------------------------
 ! ----------------------------------------------------------------
 ! MODULE const_series
@@ -68,7 +68,7 @@ CONTAINS
 
     IMPLICIT NONE
 
-    TYPE (const_series_rec), POINTER, INTENT(INOUT) :: cts
+    TYPE (const_series_rec), POINTER :: cts
     DOUBLE PRECISION, INTENT(IN) :: datetime
 
     IF (ASSOCIATED(cts%ts)) THEN
