@@ -7,7 +7,7 @@
 ! ----------------------------------------------------------------
 ! ----------------------------------------------------------------
 ! Created February 28, 2013 by William A. Perkins
-! Last Change: 2013-11-06 10:49:45 d3g096
+! Last Change: 2013-11-20 14:13:28 d3g096
 ! ----------------------------------------------------------------
   
 ! RCS ID: $Id$ Battelle PNL
@@ -90,7 +90,7 @@ CONTAINS
 
     IF (datetime .LT. ts%series(1)%time) THEN
        i = 0
-    ELSE IF (datetime .GT. ts%series(ts%length)%time) THEN
+    ELSE IF (datetime .GE. ts%series(ts%length)%time) THEN
        i = ts%length
     ELSE 
 
@@ -103,7 +103,7 @@ CONTAINS
        i = startidx
        DO i = ts%start, ts%length - 1
           IF (datetime .GE. ts%series(i)%time .AND.&
-               &datetime .LE. ts%series(i+1)%time) EXIT
+               &datetime .LT. ts%series(i+1)%time) EXIT
        END DO
        IF (i .GT. 1) ts%start = i - 1
     END IF
@@ -153,9 +153,10 @@ CONTAINS
        ! interval is zero.
 
        IF (c1 - c0 .LT. 0.0) THEN 
-          c0 = 0.0
+          cumts%rate = 0.0
+       ELSE 
+          cumts%rate = (c1 - c0)/(t1 - t0)/24.0/3600.0
        END IF
-       cumts%rate = (c1 - c0)/(t1 - t0)
        cumts%last_time = t0
        cumts%last_value = c0
        cumts%current_time = t1
