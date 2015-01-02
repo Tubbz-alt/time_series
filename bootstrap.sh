@@ -11,4 +11,4 @@
 # Last Change: Wed Mar 26 08:42:07 2003 by William A. Perkins <perk@leechong.pnl.gov>
 # -------------------------------------------------------------
 
-aclocal && automake --foreign --add-missing --copy && autoconf
+aclocal -I . && automake --foreign --add-missing --copy && autoconf
