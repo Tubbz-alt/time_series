@@ -8,14 +8,14 @@
 # -------------------------------------------------------------
 # -------------------------------------------------------------
 # Created March 25, 2003 by William A. Perkins
-# Last Change: 2013-11-06 12:58:38 d3g096
+# Last Change: 2017-01-25 06:54:43 d3g096
 # -------------------------------------------------------------
 
 # -------------------------------------------------------------
 # Initialization
 # -------------------------------------------------------------
-AC_INIT(julian.f90)
-AM_INIT_AUTOMAKE(libts,0.1)
+AC_INIT(libts,0.1)
+AM_INIT_AUTOMAKE()
 AM_MAINTAINER_MODE()
 
 # -------------------------------------------------------------
@@ -25,19 +25,14 @@ AM_MAINTAINER_MODE()
 # Checks for Programs we need
 # -------------------------------------------------------------
 AC_PROG_FC()
-AC_PROG_F90()
-AC_PROG_RANLIB
-AC_PROG_INSTALL
-AC_PROG_LN_S
+AC_PROG_RANLIB()
+AC_PROG_INSTALL()
+AC_PROG_LN_S()
 
-FCFLAGS="$FCFLAGS $FCFLAGS_f90"
 # -------------------------------------------------------------
 # set appropriate flags for specified compiler
 # -------------------------------------------------------------
 
 AC_LANG(Fortran)
-
-dnl AC_PROG_F77_WORKS
-
 
 AC_OUTPUT(Makefile)

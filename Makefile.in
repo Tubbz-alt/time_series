@@ -86,11 +86,9 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-build_triplet = @build@
-host_triplet = @host@
 check_PROGRAMS = datetest1$(EXEEXT) datetest2$(EXEEXT) \
 	tstest1$(EXEEXT) tstest2$(EXEEXT) tstest3$(EXEEXT) \
-	cumtstest1$(EXEEXT) mettest1$(EXEEXT) fptraptest$(EXEEXT)
+	cumtstest1$(EXEEXT) mettest1$(EXEEXT)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
@@ -140,6 +138,7 @@ am__v_AR_ = $(am__v_AR_@AM_DEFAULT_V@)
 am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
 libts_a_AR = $(AR) $(ARFLAGS)
+libts_a_LIBADD =
 am_libts_a_OBJECTS = time_series.$(OBJEXT) \
 	cumulative_time_series.$(OBJEXT) met_time_series.$(OBJEXT) \
 	const_series.$(OBJEXT) julian.$(OBJEXT) \
@@ -154,9 +153,6 @@ datetest1_DEPENDENCIES = libts.a
 am_datetest2_OBJECTS = datetest2.$(OBJEXT)
 datetest2_OBJECTS = $(am_datetest2_OBJECTS)
 datetest2_DEPENDENCIES = libts.a
-am_fptraptest_OBJECTS = fptraptest.$(OBJEXT)
-fptraptest_OBJECTS = $(am_fptraptest_OBJECTS)
-fptraptest_DEPENDENCIES = libts.a
 am_mettest1_OBJECTS = mettest1.$(OBJEXT)
 mettest1_OBJECTS = $(am_mettest1_OBJECTS)
 mettest1_DEPENDENCIES = libts.a
@@ -195,13 +191,11 @@ am__v_FCLD_ = $(am__v_FCLD_@AM_DEFAULT_V@)
 am__v_FCLD_0 = @echo "  FCLD    " $@;
 am__v_FCLD_1 = 
 SOURCES = $(libts_a_SOURCES) $(cumtstest1_SOURCES) \
-	$(datetest1_SOURCES) $(datetest2_SOURCES) \
-	$(fptraptest_SOURCES) $(mettest1_SOURCES) $(tstest1_SOURCES) \
-	$(tstest2_SOURCES) $(tstest3_SOURCES)
+	$(datetest1_SOURCES) $(datetest2_SOURCES) $(mettest1_SOURCES) \
+	$(tstest1_SOURCES) $(tstest2_SOURCES) $(tstest3_SOURCES)
 DIST_SOURCES = $(libts_a_SOURCES) $(cumtstest1_SOURCES) \
-	$(datetest1_SOURCES) $(datetest2_SOURCES) \
-	$(fptraptest_SOURCES) $(mettest1_SOURCES) $(tstest1_SOURCES) \
-	$(tstest2_SOURCES) $(tstest3_SOURCES)
+	$(datetest1_SOURCES) $(datetest2_SOURCES) $(mettest1_SOURCES) \
+	$(tstest1_SOURCES) $(tstest2_SOURCES) $(tstest3_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -228,8 +222,7 @@ ETAGS = etags
 CTAGS = ctags
 CSCOPE = cscope
 AM_RECURSIVE_TARGETS = cscope
-am__DIST_COMMON = $(srcdir)/Makefile.in $(top_srcdir)/../config.guess \
-	$(top_srcdir)/../config.sub $(top_srcdir)/../install-sh \
+am__DIST_COMMON = $(srcdir)/Makefile.in $(top_srcdir)/../install-sh \
 	$(top_srcdir)/../missing ChangeLog README
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
@@ -261,20 +254,8 @@ ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EXEEXT = @EXEEXT@
-F90 = @F90@
-F90DEBUG = @F90DEBUG@
-F90FLAGS = @F90FLAGS@
-F90LDFLAGS = @F90LDFLAGS@
-F90LIBS = @F90LIBS@
-F90MODPATH = @F90MODPATH@
-F90MODULEEXT = @F90MODULEEXT@
-F90OPTIMIZE = @F90OPTIMIZE@
-F90PROFILE = @F90PROFILE@
-F90TRAPOBJ = @F90TRAPOBJ@
 FC = @FC@
 FCFLAGS = @FCFLAGS@
-FCFLAGS_f90 = @FCFLAGS_f90@
-FFLAGS = @FFLAGS@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -311,22 +292,14 @@ am__leading_dot = @am__leading_dot@
 am__tar = @am__tar@
 am__untar = @am__untar@
 bindir = @bindir@
-build = @build@
 build_alias = @build_alias@
-build_cpu = @build_cpu@
-build_os = @build_os@
-build_vendor = @build_vendor@
 builddir = @builddir@
 datadir = @datadir@
 datarootdir = @datarootdir@
 docdir = @docdir@
 dvidir = @dvidir@
 exec_prefix = @exec_prefix@
-host = @host@
 host_alias = @host_alias@
-host_cpu = @host_cpu@
-host_os = @host_os@
-host_vendor = @host_vendor@
 htmldir = @htmldir@
 includedir = @includedir@
 infodir = @infodir@
@@ -356,7 +329,7 @@ EXTRA_DIST = \
 	Makefile.noauto \
 	fptrap-intel.f90 \
 	fptraptest.f90 \
-    fptrap-null.f90  \
+	fptrap-null.f90  \
 	fptraptest.dsp \
 	fptrap-win32.f90
 
@@ -370,8 +343,6 @@ libts_a_SOURCES = \
 	date_time_module.f90 \
 	utility.f90
 
-libts_a_LIBADD = @F90TRAPOBJ@
-libts_a_DEPENDENCIES = @F90TRAPOBJ@
 datetest1_SOURCES = datetest1.f90
 datetest1_LDADD = libts.a 
 datetest2_SOURCES = datetest2.f90
@@ -386,8 +357,6 @@ cumtstest1_SOURCES = cumtstest1.f90
 cumtstest1_LDADD = libts.a
 mettest1_SOURCES = mettest1.f90
 mettest1_LDADD = libts.a
-fptraptest_SOURCES = fptraptest.f90
-fptraptest_LDADD = libts.a
 all: all-am
 
 .SUFFIXES:
@@ -477,10 +446,6 @@ datetest2$(EXEEXT): $(datetest2_OBJECTS) $(datetest2_DEPENDENCIES) $(EXTRA_datet
 	@rm -f datetest2$(EXEEXT)
 	$(AM_V_FCLD)$(FCLINK) $(datetest2_OBJECTS) $(datetest2_LDADD) $(LIBS)
 
-fptraptest$(EXEEXT): $(fptraptest_OBJECTS) $(fptraptest_DEPENDENCIES) $(EXTRA_fptraptest_DEPENDENCIES) 
-	@rm -f fptraptest$(EXEEXT)
-	$(AM_V_FCLD)$(FCLINK) $(fptraptest_OBJECTS) $(fptraptest_LDADD) $(LIBS)
-
 mettest1$(EXEEXT): $(mettest1_OBJECTS) $(mettest1_DEPENDENCIES) $(EXTRA_mettest1_DEPENDENCIES) 
 	@rm -f mettest1$(EXEEXT)
 	$(AM_V_FCLD)$(FCLINK) $(mettest1_OBJECTS) $(mettest1_LDADD) $(LIBS)
@@ -504,10 +469,10 @@ distclean-compile:
 	-rm -f *.tab.c
 
 .f90.o:
-	$(AM_V_FC)$(FCCOMPILE) -c -o $@ $(FCFLAGS_f90) $<
+	$(AM_V_FC)$(FCCOMPILE) -c -o $@ $<
 
 .f90.obj:
-	$(AM_V_FC)$(FCCOMPILE) -c -o $@ $(FCFLAGS_f90) `$(CYGPATH_W) '$<'`
+	$(AM_V_FC)$(FCCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -861,6 +826,8 @@ uninstall-am: uninstall-libLIBRARIES
 
 .PRECIOUS: Makefile
 
+# fptraptest_SOURCES = fptraptest.f90
+# fptraptest_LDADD = libts.a
 
 # dependancies for individual object files
 
@@ -881,7 +848,7 @@ fptrap-null.$(OBJEXT): fptrap-null.f90 utility.$(OBJEXT)
 fptrap-intel.$(OBJEXT): fptrap-intel.f90 utility.$(OBJEXT)
 
 clean-local:
-	rm -f *.$(F90MODULEEXT)
+	rm -f *.$(FC_MODEXT)
 	rm -f fort.*
 	rm -f *~
 

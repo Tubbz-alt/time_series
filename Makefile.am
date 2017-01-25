@@ -5,7 +5,7 @@ EXTRA_DIST = \
 	Makefile.noauto \
 	fptrap-intel.f90 \
 	fptraptest.f90 \
-    fptrap-null.f90  \
+	fptrap-null.f90  \
 	fptraptest.dsp \
 	fptrap-win32.f90
 
@@ -21,8 +21,8 @@ libts_a_SOURCES = \
 	date_time_module.f90 \
 	utility.f90
 
-libts_a_LIBADD = @F90TRAPOBJ@
-libts_a_DEPENDENCIES = @F90TRAPOBJ@
+# libts_a_LIBADD = @F90TRAPOBJ@
+# libts_a_DEPENDENCIES = @F90TRAPOBJ@
 
 check_PROGRAMS = \
 	datetest1 \
@@ -31,8 +31,7 @@ check_PROGRAMS = \
 	tstest2 \
 	tstest3 \
 	cumtstest1 \
-	mettest1 \
-	fptraptest
+	mettest1
 
 datetest1_SOURCES = datetest1.f90
 datetest1_LDADD = libts.a 
@@ -48,8 +47,8 @@ cumtstest1_SOURCES = cumtstest1.f90
 cumtstest1_LDADD = libts.a
 mettest1_SOURCES = mettest1.f90
 mettest1_LDADD = libts.a
-fptraptest_SOURCES = fptraptest.f90
-fptraptest_LDADD = libts.a
+# fptraptest_SOURCES = fptraptest.f90
+# fptraptest_LDADD = libts.a
 
 # dependancies for individual object files
 
@@ -70,6 +69,6 @@ fptrap-null.$(OBJEXT): fptrap-null.f90 utility.$(OBJEXT)
 fptrap-intel.$(OBJEXT): fptrap-intel.f90 utility.$(OBJEXT)
 
 clean-local:
-	rm -f *.$(F90MODULEEXT)
+	rm -f *.$(FC_MODEXT)
 	rm -f fort.*
 	rm -f *~

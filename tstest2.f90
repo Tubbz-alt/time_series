@@ -7,7 +7,7 @@
 ! ----------------------------------------------------------------
 ! ----------------------------------------------------------------
 ! Created October 24, 2002 by William A. Perkins
-! Last Change: Thu Jan 23 12:56:35 2003 by William A. Perkins <perk@leechong.pnl.gov>
+! Last Change: 2017-01-25 07:07:07 d3g096
 ! ----------------------------------------------------------------
 
 PROGRAM tstest
@@ -19,17 +19,23 @@ PROGRAM tstest
   CHARACTER (LEN=80), SAVE :: rcsid = "$Id$"
   
   TYPE (time_series_rec), POINTER :: ts
-  DOUBLE PRECISION :: t
-  INTEGER :: i
+  DOUBLE PRECISION :: t0, t, tstep
+  INTEGER :: i, istep
 
   CALL time_series_module_init(mode = TS_REAL_MODE, &
        &limit = TS_LIMIT_FLAT, debug = 15)
 
   ts => time_series_read('tstest2.dat', fields = 2)
 
-  DO t = 10.0*DAYS, 15.0*DAYS + 0.1*SECONDS, 6.0*HOURS
+  t0 = 10.0*DAYS
+  tstep = 6.0*HOURS
+  istep = 0
+  DO WHILE (.TRUE.)
+     t = t0 + istep*tstep
+     IF (t .GT. 15.0*DAYS + 0.1*SECONDS) EXIT
      CALL time_series_interp(ts, t)
      WRITE(*,100) t, (ts%current(i), i = 1, ts%fields)
+     istep = istep + 1
   END DO
   CALL time_series_module_done()
   
