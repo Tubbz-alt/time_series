@@ -2,12 +2,14 @@
 ! file: mettest1.f90
 ! ----------------------------------------------------------------
 ! ----------------------------------------------------------------
-! Battelle Memorial Institute
-! Pacific Northwest Laboratory
+! Copyright (c) 2017 Battelle Memorial Institute
+! Licensed under modified BSD License. A copy of this license can be
+! found in the LICENSE file in the top level directory of this
+! distribution.
 ! ----------------------------------------------------------------
 ! ----------------------------------------------------------------
 ! Created March  1, 2013 by William A. Perkins
-! Last Change: Thu Jun  3 06:45:08 2010 by William A. Perkins <d3g096@PE10900.pnl.gov>
+! Last Change: 2017-06-22 09:23:48 d3g096
 ! ----------------------------------------------------------------
 PROGRAM mettest1
   

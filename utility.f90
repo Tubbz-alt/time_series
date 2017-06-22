@@ -2,12 +2,14 @@
 ! file: utility.f90
 ! ----------------------------------------------------------------
 ! ----------------------------------------------------------------
-! Battelle Memorial Institute
-! Pacific Northwest Laboratory
+! Copyright (c) 2017 Battelle Memorial Institute
+! Licensed under modified BSD License. A copy of this license can be
+! found in the LICENSE file in the top level directory of this
+! distribution.
 ! ----------------------------------------------------------------
 ! ----------------------------------------------------------------
 ! Created October 21, 2002 by William A. Perkins
-! Last Change: Mon Feb  5 19:06:27 2007 by William A. Perkins <perk@mcperktop.local>
+! Last Change: 2017-06-22 09:24:51 d3g096
 ! ----------------------------------------------------------------
 
 ! ----------------------------------------------------------------
