@@ -3,7 +3,7 @@
 Copyright (c) 2017 Battelle Memorial Institute
 Licensed under modified BSD License. A copy of this license can be
 found in the [LICENSE](LICENSE) file in the top level directory of this
-distribution.
+distribution. See also the [disclaimer](DISCLAIMER). 
 
 ## Description
 
