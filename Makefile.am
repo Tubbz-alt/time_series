@@ -9,7 +9,7 @@
 # -------------------------------------------------------------
 # -------------------------------------------------------------
 # Created June 22, 2017 by William A. Perkins
-# Last Change: 2017-06-22 09:25:42 d3g096
+# Last Change: 2017-08-24 09:40:16 d3g096
 # -------------------------------------------------------------
 
 AM_FFLAGS = $(FCFLAGS)
@@ -24,7 +24,7 @@ EXTRA_DIST = \
 	fptrap-win32.f90
 
 
-lib_LIBRARIES = libts.a
+noinst_LIBRARIES = libts.a
 
 libts_a_SOURCES = \
 	time_series.f90 \
